@@ -8,7 +8,7 @@ export interface AddSelectorRequestDto {
   system: string;
 }
 
-export type AddSelectorResponseDto = Result<AddSelectorDto> | Result<Selector>;
+export type AddSelectorResponseDto = Result<AddSelectorDto> | Result<null>;
 
 export interface AddSelectorDto {
   id: string;
@@ -45,7 +45,7 @@ export class AddSelector
         await this.#addSelectorRepository.findBySelector(
           createResult.value.selector
         );
-      if (selector) return Result.ok<AddSelectorDto>(selector);
+      if (selector) return Result.fail<null>('Selector is already registered');
 
       await this.#addSelectorRepository.save(createResult.value);
 

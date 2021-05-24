@@ -5,10 +5,10 @@ import SelectorDomain from '../../../domain/selector-domain';
 
 const selectorRoutes = Router();
 const selectorDomain: SelectorDomain = app.selectorMain;
-const addCommentController = new AddSelectorController(
+const addSelectorController = new AddSelectorController(
   selectorDomain.addSelector
 );
 
-selectorRoutes.post('/', (req, res) => addCommentController.execute(req, res));
+selectorRoutes.post('/', (req, res) => addSelectorController.execute(req, res));
 
 export default selectorRoutes;

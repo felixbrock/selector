@@ -1,5 +1,6 @@
 // TODO - Flat File System
 import fs from 'fs';
+import path from 'path';
 import {
   AddSelectorDto,
   IAddSelectorRepository,
@@ -12,7 +13,7 @@ export default class AddSelectorRepositoryImpl
   public findBySelector = async (
     selector: string
   ): Promise<AddSelectorDto | null> => {
-    const data: string = fs.readFileSync('./selector-db.json', 'utf-8');
+    const data: string = fs.readFileSync(path.resolve(__dirname, './selector-db.json'), 'utf-8');
     const db = JSON.parse(data);
 
     const result = db.selectors.find(
@@ -24,12 +25,14 @@ export default class AddSelectorRepositoryImpl
   };
 
   public async save(selector: Selector): Promise<void> {
-    const data: string = fs.readFileSync('./selector-db.json', 'utf-8');
+    const data: string = fs.readFileSync(path.resolve(__dirname, './selector-db.json'), 'utf-8');
     const db = JSON.parse(data);
 
-    db.selector.push(this.#toPersistence(selector));
+    if (!db.systems.includes(selector.system)) db.systems.push(selector.system);
 
-    fs.writeFileSync('./selector-db.json', 'utf-8');
+    db.selectors.push(this.#toPersistence(selector));
+
+    fs.writeFileSync(path.resolve(__dirname, './selector-db.json'), JSON.stringify(db), 'utf-8');
   }
 
   #toPersistence = (selector: Selector): AddSelectorDto => ({
