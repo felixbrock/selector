@@ -6,8 +6,6 @@ export interface SelectorProps {
   id: string;
   systemId: string;
   selector: string;
-  modifiedOn?: number;
-  createdOn?: number;
 }
 
 export class Selector {
@@ -42,9 +40,9 @@ export class Selector {
   }
 
   private constructor(props: SelectorProps) {
-    this.#createdOn = props.createdOn || Date.now();
+    this.#createdOn = Date.now();
     this.#id = props.id;
-    this.#modifiedOn = props.modifiedOn || Date.now();
+    this.#modifiedOn = Date.now();
     this.#selector = props.selector;
     this.#systemId = props.systemId;
   }
