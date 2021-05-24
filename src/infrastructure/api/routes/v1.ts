@@ -6,6 +6,6 @@ const v1Router = Router();
 
 v1Router.get('/', (req, res) => res.json({ message: "Yo! We're up!" }));
 
-v1Router.use(`/${apiRoot}/selector`, selectorRoutes);
+v1Router.use(`/${apiRoot}/v1/selector`, selectorRoutes);
 
 export default v1Router;
