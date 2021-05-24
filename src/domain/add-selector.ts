@@ -5,15 +5,15 @@ import { Selector, SelectorProps } from './entities/reference-types';
 
 export interface AddSelectorRequestDto {
   selector: string;
-  system: string;
+  systemId: string;
 }
 
-export type AddSelectorResponseDto = Result<AddSelectorDto> | Result<null>;
+export type AddSelectorResponseDto = Result<AddSelectorDto | null>;
 
 export interface AddSelectorDto {
   id: string;
   selector: string;
-  system: string;
+  systemId: string;
   modifiedOn: number;
   createdOn: number;
 }
@@ -37,20 +37,20 @@ export class AddSelector
   public async execute(
     request: AddSelectorRequestDto
   ): Promise<AddSelectorResponseDto> {
-    const createResult: Result<Selector> = this.#createSelector(request);
-    if (!createResult.value) return createResult;
+    const selector: Result<Selector | null> = this.#createSelector(request);
+    if (!selector.value) return selector;
 
     try {
-      const selector: AddSelectorDto | null =
+      const addSelectorDto: AddSelectorDto | null =
         await this.#addSelectorRepository.findBySelector(
-          createResult.value.selector
+          selector.value.selector
         );
-      if (selector) return Result.fail<null>('Selector is already registered');
+      if (addSelectorDto) return Result.fail<null>('Selector is already registered');
 
-      await this.#addSelectorRepository.save(createResult.value);
+      await this.#addSelectorRepository.save(selector.value);
 
       return Result.ok<AddSelectorDto>(
-        this.#buildSelectorDto(createResult.value)
+        this.#buildSelectorDto(selector.value)
       );
     } catch (error) {
       return Result.fail<AddSelectorDto>(error.message);
@@ -60,16 +60,18 @@ export class AddSelector
   #buildSelectorDto = (selector: Selector): AddSelectorDto => ({
     id: selector.id,
     selector: selector.selector,
-    system: selector.system,
+    systemId: selector.systemId,
     createdOn: selector.createdOn,
     modifiedOn: selector.modifiedOn,
   });
 
-  #createSelector = (request: AddSelectorRequestDto): Result<Selector> => {
+  #createSelector = (
+    request: AddSelectorRequestDto
+  ): Result<Selector | null> => {
     const selectorProps: SelectorProps = {
       id: Id.next(uuidv4).id,
       selector: request.selector,
-      system: request.system,
+      systemId: request.systemId,
     };
 
     return Selector.create(selectorProps);

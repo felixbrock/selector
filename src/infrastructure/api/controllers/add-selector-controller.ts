@@ -13,7 +13,7 @@ export default class AddSelectorController extends BaseController {
 
   public static buildRequestDto(httpRequest: Request): AddSelectorRequestDto {
     return {
-      system: httpRequest.body.system,
+      systemId: httpRequest.body.systemId,
       selector: httpRequest.body.selector,
     };
   }

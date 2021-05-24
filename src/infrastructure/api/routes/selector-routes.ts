@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import AddSelectorController from '../controllers';
+import { AddSelectorController } from '../controllers';
 import app from '../../ioc-register';
 import SelectorDomain from '../../../domain/selector-domain';
 

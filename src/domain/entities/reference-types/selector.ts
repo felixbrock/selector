@@ -1,12 +1,14 @@
 import { Result } from '../value-types';
 
+// TODO createdOn and modifiedOn should not be part of props 
+// since they should not be provided when creating new selector
 export interface SelectorProps {
   id: string;
-  system: string;
+  systemId: string;
   selector: string;
   modifiedOn?: number;
   createdOn?: number;
-};
+}
 
 export class Selector {
   #createdOn: number;
@@ -17,7 +19,7 @@ export class Selector {
 
   #selector: string;
 
-  #system: string;
+  #systemId: string;
 
   public get createdOn(): number {
     return this.#createdOn;
@@ -35,8 +37,8 @@ export class Selector {
     return this.#selector;
   }
 
-  public get system(): string {
-    return this.#system;
+  public get systemId(): string {
+    return this.#systemId;
   }
 
   private constructor(props: SelectorProps) {
@@ -44,13 +46,13 @@ export class Selector {
     this.#id = props.id;
     this.#modifiedOn = props.modifiedOn || Date.now();
     this.#selector = props.selector;
-    this.#system = props.system;
+    this.#systemId = props.systemId;
   }
 
-  public static create(props: SelectorProps): Result<Selector> {
-    if (!props.selector) return Result.fail('Selector must have selector');
-    if (!props.system) return Result.fail('Selector must have system');
-    if (!props.id) return Result.fail('Selector must have id');
+  public static create(props: SelectorProps): Result<Selector | null> {
+    if (!props.selector) return Result.fail<null>('Selector must have selector');
+    if (!props.systemId) return Result.fail<null>('Selector must have system id');
+    if (!props.id) return Result.fail<null>('Selector must have id');
     // TODO move source logic to controller layer
 
     const selector = new Selector(props);
