@@ -1,6 +1,6 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
-import { AddSystem, AddSystemRequestDto, AddSystemResponseDto } from '../../../domain/add-system';
+import { AddSystem, AddSystemRequestDto, AddSystemResponseDto } from '../../../domain/use-cases/add-system';
 import { BaseController, CodeHttp } from '../../shared';
 
 export default class AddSystemController extends BaseController {

@@ -57,3 +57,15 @@ Interface over type. type only for specific purposes like union type
 const and let with type description for complex types or where type is not initially clear
 if one line then do it (like 'if' things)
 include public
+
+declare const and let type where complex types are used
+
+use CRUD verbs when describing repo functions (rather than add or list)
+  - if addressing a database use 'read'
+  - if addressing an external API use 'get'
+
+use normal function notation where possible and try to avoid storing functions in constants where possible
+
+
+https://stackoverflow.com/questions/6845772/rest-uri-convention-singular-or-plural-name-of-resource-while-creating-it
+

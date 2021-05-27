@@ -1,13 +1,13 @@
 // TODO - Flat File System
 import fs from 'fs';
 import path from 'path';
-import { AddSystemDto, IAddSystemRepository } from '../../domain/add-system';
+import { AddSystemDto, IAddSystemRepository } from '../../domain/use-cases/add-system';
 import { System } from '../../domain/entities/reference-types';
 
 export default class AddSelectorRepositoryImpl implements IAddSystemRepository {
   public findByName = async (name: string): Promise<AddSystemDto | null> => {
     const data: string = fs.readFileSync(
-      path.resolve(__dirname, './db.json'),
+      path.resolve(__dirname, '../../../db.json'),
       'utf-8'
     );
     const db = JSON.parse(data);
@@ -21,7 +21,7 @@ export default class AddSelectorRepositoryImpl implements IAddSystemRepository {
 
   public async save(system: System): Promise<void> {
     const data: string = fs.readFileSync(
-      path.resolve(__dirname, './db.json'),
+      path.resolve(__dirname, '../../../db.json'),
       'utf-8'
     );
     const db = JSON.parse(data);
@@ -29,7 +29,7 @@ export default class AddSelectorRepositoryImpl implements IAddSystemRepository {
     db.systems.push(this.#toPersistence(system));
 
     fs.writeFileSync(
-      path.resolve(__dirname, './db.json'),
+      path.resolve(__dirname, '../../../db.json'),
       JSON.stringify(db),
       'utf-8'
     );

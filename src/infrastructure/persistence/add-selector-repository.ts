@@ -4,39 +4,39 @@ import path from 'path';
 import {
   AddSelectorDto,
   IAddSelectorRepository,
-} from '../../domain/add-selector';
+} from '../../domain/use-cases/add-selector';
 import { Selector } from '../../domain/entities/reference-types';
 
 export default class AddSelectorRepositoryImpl
   implements IAddSelectorRepository
 {
-  public findBySelector = async (
-    selector: string
+  public findByContent = async (
+    content: string
   ): Promise<AddSelectorDto | null> => {
-    const data: string = fs.readFileSync(path.resolve(__dirname, './db.json'), 'utf-8');
+    const data: string = fs.readFileSync(path.resolve(__dirname, '../../../db.json'), 'utf-8');
     const db = JSON.parse(data);
 
     const result = db.selectors.find(
-      (selectorEntity: { selector: string }) =>
-        selectorEntity.selector === selector
+      (selectorEntity: { content: string }) =>
+        selectorEntity.content === content
     );
 
     return result || null;
   };
 
   public async save(selector: Selector): Promise<void> {
-    const data: string = fs.readFileSync(path.resolve(__dirname, './db.json'), 'utf-8');
+    const data: string = fs.readFileSync(path.resolve(__dirname, '../../../db.json'), 'utf-8');
     const db = JSON.parse(data);
 
     db.selectors.push(this.#toPersistence(selector));
 
-    fs.writeFileSync(path.resolve(__dirname, './db.json'), JSON.stringify(db), 'utf-8');
+    fs.writeFileSync(path.resolve(__dirname, '../../../db.json'), JSON.stringify(db), 'utf-8');
   }
 
   #toPersistence = (selector: Selector): AddSelectorDto => ({
     id: selector.id,
     systemId: selector.systemId,
-    selector: selector.selector,
+    content: selector.content,
     createdOn: selector.createdOn,
     modifiedOn: selector.modifiedOn,
   });

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import IUseCase from './shared';
-import { Id, Result } from './entities/value-types';
-import { System, SystemProps } from './entities/reference-types';
+import IUseCase from '../shared';
+import { Id, Result } from '../entities/value-types';
+import { System, SystemProps } from '../entities/reference-types';
 
 export interface AddSystemRequestDto {
   name: string;

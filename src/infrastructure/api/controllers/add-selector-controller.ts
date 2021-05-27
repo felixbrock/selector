@@ -1,6 +1,6 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
-import { AddSelector, AddSelectorRequestDto, AddSelectorResponseDto } from '../../../domain/add-selector';
+import { AddSelector, AddSelectorRequestDto, AddSelectorResponseDto } from '../../../domain/use-cases/add-selector';
 import { BaseController, CodeHttp } from '../../shared';
 
 export default class AddSelectorController extends BaseController {
@@ -14,7 +14,7 @@ export default class AddSelectorController extends BaseController {
   public static buildRequestDto(httpRequest: Request): AddSelectorRequestDto {
     return {
       systemId: httpRequest.body.systemId,
-      selector: httpRequest.body.selector,
+      content: httpRequest.body.content,
     };
   }
 

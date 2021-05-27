@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import IUseCase from './shared';
-import { Id, Result } from './entities/value-types';
-import { Selector, SelectorProps } from './entities/reference-types';
+import IUseCase from '../shared';
+import { Id, Result } from '../entities/value-types';
+import { Selector, SelectorProps } from '../entities/reference-types';
 
 export interface AddSelectorRequestDto {
-  selector: string;
+  content: string;
   systemId: string;
 }
 
@@ -12,14 +12,14 @@ export type AddSelectorResponseDto = Result<AddSelectorDto | null>;
 
 export interface AddSelectorDto {
   id: string;
-  selector: string;
+  content: string;
   systemId: string;
   modifiedOn: number;
   createdOn: number;
 }
 
 export interface IAddSelectorRepository {
-  findBySelector(selector: string): Promise<AddSelectorDto | null>;
+  findByContent(selector: string): Promise<AddSelectorDto | null>;
   save(selector: Selector): Promise<void>;
 }
 
@@ -42,8 +42,8 @@ export class AddSelector
 
     try {
       const addSelectorDto: AddSelectorDto | null =
-        await this.#addSelectorRepository.findBySelector(
-          selector.value.selector
+        await this.#addSelectorRepository.findByContent(
+          selector.value.content
         );
       if (addSelectorDto) return Result.fail<null>('Selector is already registered');
 
@@ -59,7 +59,7 @@ export class AddSelector
 
   #buildSelectorDto = (selector: Selector): AddSelectorDto => ({
     id: selector.id,
-    selector: selector.selector,
+    content: selector.content,
     systemId: selector.systemId,
     createdOn: selector.createdOn,
     modifiedOn: selector.modifiedOn,
@@ -70,7 +70,7 @@ export class AddSelector
   ): Result<Selector | null> => {
     const selectorProps: SelectorProps = {
       id: Id.next(uuidv4).id,
-      selector: request.selector,
+      content: request.content,
       systemId: request.systemId,
     };
 
