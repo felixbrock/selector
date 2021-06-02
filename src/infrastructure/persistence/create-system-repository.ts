@@ -1,11 +1,11 @@
 // TODO - Flat File System
 import fs from 'fs';
 import path from 'path';
-import { AddSystemDto, IAddSystemRepository } from '../../domain/use-cases/add-system';
+import { CreateSystemDto, ICreateSystemRepository } from '../../domain/use-cases/create-system';
 import { System } from '../../domain/entities/reference-types';
 
-export default class AddSelectorRepositoryImpl implements IAddSystemRepository {
-  public findByName = async (name: string): Promise<AddSystemDto | null> => {
+export default class CreateSelectorRepositoryImpl implements ICreateSystemRepository {
+  public findByName = async (name: string): Promise<CreateSystemDto | null> => {
     const data: string = fs.readFileSync(
       path.resolve(__dirname, '../../../db.json'),
       'utf-8'
@@ -35,7 +35,7 @@ export default class AddSelectorRepositoryImpl implements IAddSystemRepository {
     );
   }
 
-  #toPersistence = (system: System): AddSystemDto => ({
+  #toPersistence = (system: System): CreateSystemDto => ({
     id: system.id,
     name: system.name,
     createdOn: system.createdOn,

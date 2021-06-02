@@ -3,14 +3,14 @@ import IUseCase from '../shared';
 import { Id, Result } from '../entities/value-types';
 import { Selector, SelectorProps } from '../entities/reference-types';
 
-export interface AddSelectorRequestDto {
+export interface CreateSelectorRequestDto {
   content: string;
   systemId: string;
 }
 
-export type AddSelectorResponseDto = Result<AddSelectorDto | null>;
+export type CreateSelectorResponseDto = Result<CreateSelectorDto | null>;
 
-export interface AddSelectorDto {
+export interface CreateSelectorDto {
   id: string;
   content: string;
   systemId: string;
@@ -18,46 +18,46 @@ export interface AddSelectorDto {
   createdOn: number;
 }
 
-export interface IAddSelectorRepository {
-  findByContent(selector: string): Promise<AddSelectorDto | null>;
+export interface ICreateSelectorRepository {
+  findByContent(selector: string): Promise<CreateSelectorDto | null>;
   save(selector: Selector): Promise<void>;
 }
 
-export class AddSelector
-  implements IUseCase<AddSelectorRequestDto, AddSelectorResponseDto>
+export class CreateSelector
+  implements IUseCase<CreateSelectorRequestDto, CreateSelectorResponseDto>
 {
-  #addSelectorRepository: IAddSelectorRepository;
+  #createSelectorRepository: ICreateSelectorRepository;
 
-  public constructor(addSelectorRepository: IAddSelectorRepository) {
-    this.#addSelectorRepository = addSelectorRepository;
+  public constructor(createSelectorRepository: ICreateSelectorRepository) {
+    this.#createSelectorRepository = createSelectorRepository;
   }
 
   // TODO return resolve or reject promis return instead
 
   public async execute(
-    request: AddSelectorRequestDto
-  ): Promise<AddSelectorResponseDto> {
+    request: CreateSelectorRequestDto
+  ): Promise<CreateSelectorResponseDto> {
     const selector: Result<Selector | null> = this.#createSelector(request);
     if (!selector.value) return selector;
 
     try {
-      const addSelectorDto: AddSelectorDto | null =
-        await this.#addSelectorRepository.findByContent(
+      const createSelectorDto: CreateSelectorDto | null =
+        await this.#createSelectorRepository.findByContent(
           selector.value.content
         );
-      if (addSelectorDto) return Result.fail<null>('Selector is already registered');
+      if (createSelectorDto) return Result.fail<null>('Selector is already registered');
 
-      await this.#addSelectorRepository.save(selector.value);
+      await this.#createSelectorRepository.save(selector.value);
 
-      return Result.ok<AddSelectorDto>(
+      return Result.ok<CreateSelectorDto>(
         this.#buildSelectorDto(selector.value)
       );
     } catch (error) {
-      return Result.fail<AddSelectorDto>(error.message);
+      return Result.fail<CreateSelectorDto>(error.message);
     }
   }
 
-  #buildSelectorDto = (selector: Selector): AddSelectorDto => ({
+  #buildSelectorDto = (selector: Selector): CreateSelectorDto => ({
     id: selector.id,
     content: selector.content,
     systemId: selector.systemId,
@@ -66,7 +66,7 @@ export class AddSelector
   });
 
   #createSelector = (
-    request: AddSelectorRequestDto
+    request: CreateSelectorRequestDto
   ): Result<Selector | null> => {
     const selectorProps: SelectorProps = {
       id: Id.next(uuidv4).id,

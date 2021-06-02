@@ -1,12 +1,12 @@
 import { InjectionMode, asClass, createContainer } from 'awilix';
 
-import { AddSelector } from '../domain/use-cases/add-selector';
-import { AddSystem } from '../domain/use-cases/add-system';
+import { CreateSelector } from '../domain/use-cases/create-selector';
+import { CreateSystem } from '../domain/use-cases/create-system';
 import { ReadSelector } from '../domain/use-cases/read-selector';
 import { ReadSystem } from '../domain/use-cases/read-system';
 
-import AddSelectorRepository from './persistence/add-selector-repository';
-import AddSystemRepository from './persistence/add-system-repository';
+import CreateSelectorRepository from './persistence/create-selector-repository';
+import CreateSystemRepository from './persistence/create-system-repository';
 import ReadSelectorRepository from './persistence/read-selector-repository';
 import ReadSystemRepository from './persistence/read-system-repository';
 
@@ -19,13 +19,13 @@ iocRegister.register({
   selectorDomain: asClass(SelectorDomain),
   systemDomain: asClass(SystemDomain),
 
-  addSelector: asClass(AddSelector),
-  addSystem: asClass(AddSystem),
+  createSelector: asClass(CreateSelector),
+  createSystem: asClass(CreateSystem),
   readSelector: asClass(ReadSelector),
   readSystem: asClass(ReadSystem),
 
-  addSelectorRepository: asClass(AddSelectorRepository),
-  addSystemRepository: asClass(AddSystemRepository),
+  createSelectorRepository: asClass(CreateSelectorRepository),
+  createSystemRepository: asClass(CreateSystemRepository),
   readSelectorRepository: asClass(ReadSelectorRepository),
   readSystemRepository: asClass(ReadSystemRepository),
 });

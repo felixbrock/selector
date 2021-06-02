@@ -2,17 +2,17 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  AddSelectorDto,
-  IAddSelectorRepository,
-} from '../../domain/use-cases/add-selector';
+  CreateSelectorDto,
+  ICreateSelectorRepository,
+} from '../../domain/use-cases/create-selector';
 import { Selector } from '../../domain/entities/reference-types';
 
-export default class AddSelectorRepositoryImpl
-  implements IAddSelectorRepository
+export default class CreateSelectorRepositoryImpl
+  implements ICreateSelectorRepository
 {
   public findByContent = async (
     content: string
-  ): Promise<AddSelectorDto | null> => {
+  ): Promise<CreateSelectorDto | null> => {
     const data: string = fs.readFileSync(path.resolve(__dirname, '../../../db.json'), 'utf-8');
     const db = JSON.parse(data);
 
@@ -33,7 +33,7 @@ export default class AddSelectorRepositoryImpl
     fs.writeFileSync(path.resolve(__dirname, '../../../db.json'), JSON.stringify(db), 'utf-8');
   }
 
-  #toPersistence = (selector: Selector): AddSelectorDto => ({
+  #toPersistence = (selector: Selector): CreateSelectorDto => ({
     id: selector.id,
     systemId: selector.systemId,
     content: selector.content,

@@ -1,21 +1,21 @@
-import { AddSystem } from '../use-cases/add-system';
+import { CreateSystem } from '../use-cases/create-system';
 import { ReadSystem } from '../use-cases/read-system';
 
 export default class SystemDomain {
-  #addSystem: AddSystem;
+  #createSystem: CreateSystem;
   
   #readSystem: ReadSystem;
 
-  public get addSystem(): AddSystem {
-    return this.#addSystem;
+  public get createSystem(): CreateSystem {
+    return this.#createSystem;
   }
 
   public get readSystem() : ReadSystem {
     return this.#readSystem;
   }
 
-  constructor(addSystem: AddSystem, readSystem : ReadSystem) {
-    this.#addSystem = addSystem;
+  constructor(createSystem: CreateSystem, readSystem : ReadSystem) {
+    this.#createSystem = createSystem;
     this.#readSystem = readSystem;
   }
 }

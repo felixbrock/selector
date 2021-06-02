@@ -69,3 +69,8 @@ use normal function notation where possible and try to avoid storing functions i
 
 https://stackoverflow.com/questions/6845772/rest-uri-convention-singular-or-plural-name-of-resource-while-creating-it
 
+https://docs.npmjs.com/specifying-dependencies-and-devdependencies-in-a-package-json-file
+Bascially, all external libraries that are directly used by code (e.g. not eslint) need to be installed as dependencies (--save). Those need to be javascript libraries. The typescript equivalent need to be installed under devdependencies (--save-dev)
+
+when naming classes of files use CRUD terminology rather than addSelectorRepository (instead createSelectorRepository)
+
