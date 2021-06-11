@@ -1,20 +1,22 @@
+// TODO Violation of Dependency Rule
 import { v4 as uuidv4 } from 'uuid';
-import IUseCase from '../shared';
-import { Id, Result } from '../entities/value-types';
-import { System, SystemProps } from '../entities/reference-types';
+import { IUseCase, Result } from '../shared';
+import Id from '../value-types';
+import { System, SystemProps } from '../entities';
 
 export interface CreateSystemRequestDto {
   name: string;
 }
 
-export type CreateSystemResponseDto = Result<CreateSystemDto | null>;
-
+// TODO Create and Read System are basically the same interface. Fix
 export interface CreateSystemDto {
   id: string;
   name: string;
   modifiedOn: number;
   createdOn: number;
 }
+
+export type CreateSystemResponseDto = Result<CreateSystemDto | null>;
 
 export interface ICreateSystemRepository {
   findByName(name: string): Promise<CreateSystemDto | null>;
@@ -30,8 +32,6 @@ export class CreateSystem
     this.#createSystemRepository = createSystemRepository;
   }
 
-  // TODO return resolve or reject promis return instead
-
   public async execute(
     request: CreateSystemRequestDto
   ): Promise<CreateSystemResponseDto> {
@@ -39,11 +39,11 @@ export class CreateSystem
     if (!system.value) return system;
 
     try {
-      const createSystemDto: CreateSystemDto | null =
+      const readSystemResult: CreateSystemDto | null =
         await this.#createSystemRepository.findByName(
           system.value.name
         );
-      if (createSystemDto) return Result.fail<null>(`System is already registered under ${createSystemDto.id}`);
+      if (readSystemResult) return Result.fail<null>(`System ${readSystemResult.name} is already registered under ${readSystemResult.id}`);
 
       await this.#createSystemRepository.save(system.value);
 

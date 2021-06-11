@@ -1,5 +1,5 @@
-import { CreateSystem } from '../use-cases/create-system';
-import { ReadSystem } from '../use-cases/read-system';
+import { CreateSystem } from './use-cases/create-system';
+import { ReadSystem } from './use-cases/read-system';
 
 export default class SystemDomain {
   #createSystem: CreateSystem;

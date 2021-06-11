@@ -1,5 +1,5 @@
-import { CreateSelector } from '../use-cases/create-selector';
-import { ReadSelector } from '../use-cases/read-selector';
+import { CreateSelector } from './use-cases/create-selector';
+import { ReadSelector } from './use-cases/read-selector';
 
 export default class SelectorDomain {
   #createSelector: CreateSelector;

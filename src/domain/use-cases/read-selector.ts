@@ -1,19 +1,19 @@
-import IUseCase from '../shared';
-import { Result } from '../entities/value-types';
+import { IUseCase, Result } from '../shared';
+
 
 export interface ReadSelectorRequestDto {
   id: string;
 }
 
-export type ReadSelectorResponseDto = Result<ReadSelectorDto | null>;
-
 export interface ReadSelectorDto {
   id: string;
-  selector: string;
+  content: string;
   systemId: string;
   modifiedOn: number;
   createdOn: number;
 }
+
+export type ReadSelectorResponseDto = Result<ReadSelectorDto | null>;
 
 export interface IReadSelectorRepository {
   findById(selector: string): Promise<ReadSelectorDto | null>;
@@ -28,23 +28,21 @@ export class ReadSelector
     this.#readSelectorRepository = readSelectorRepository;
   }
 
-  // TODO return resolve or reject promis return instead
-
   public async execute(
     request: ReadSelectorRequestDto
   ): Promise<ReadSelectorResponseDto> {
     try {
-      const readSelectorDto: ReadSelectorDto | null =
+      const readSelectorResult: ReadSelectorDto | null =
         await this.#readSelectorRepository.findById(
           request.id
         );
-      if (!readSelectorDto)
+      if (!readSelectorResult)
         return Result.fail<null>(
           `Selector with id ${request.id} does not exist.`
         );
 
       return Result.ok<ReadSelectorDto>(
-        readSelectorDto
+        readSelectorResult
       );
     } catch (error) {
       return Result.fail<ReadSelectorDto>(error.message);

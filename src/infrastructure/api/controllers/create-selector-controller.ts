@@ -20,7 +20,6 @@ export default class CreateSelectorController extends BaseController {
     content: httpRequest.body.content,
   });
 
-  // TODO - replace all try catch with then catch
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
       const requestDto: CreateSelectorRequestDto =

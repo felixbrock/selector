@@ -1,8 +1,7 @@
-// TODO - Flat File System
 import fs from 'fs';
 import path from 'path';
 import { CreateSystemDto, ICreateSystemRepository } from '../../domain/use-cases/create-system';
-import { System } from '../../domain/entities/reference-types';
+import { System } from '../../domain/entities';
 
 export default class CreateSelectorRepositoryImpl implements ICreateSystemRepository {
   public findByName = async (name: string): Promise<CreateSystemDto | null> => {

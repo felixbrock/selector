@@ -1,11 +1,10 @@
-// TODO - Flat File System
 import fs from 'fs';
 import path from 'path';
 import {
   CreateSelectorDto,
   ICreateSelectorRepository,
 } from '../../domain/use-cases/create-selector';
-import { Selector } from '../../domain/entities/reference-types';
+import { Selector } from '../../domain/entities';
 
 export default class CreateSelectorRepositoryImpl
   implements ICreateSelectorRepository

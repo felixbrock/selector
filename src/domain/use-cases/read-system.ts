@@ -1,11 +1,9 @@
-import IUseCase from '../shared';
-import { Result } from '../entities/value-types';
+import { IUseCase, Result } from '../shared';
+
 
 export interface ReadSystemRequestDto {
   id: string;
 }
-
-export type ReadSystemResponseDto = Result<ReadSystemDto | null>;
 
 export interface ReadSystemDto {
   id: string;
@@ -13,6 +11,8 @@ export interface ReadSystemDto {
   modifiedOn: number;
   createdOn: number;
 }
+
+export type ReadSystemResponseDto = Result<ReadSystemDto | null>;
 
 export interface IReadSystemRepository {
   findById(system: string): Promise<ReadSystemDto | null>;
@@ -27,23 +27,21 @@ export class ReadSystem
     this.#readSystemRepository = readSystemRepository;
   }
 
-  // TODO return resolve or reject promis return instead
-
   public async execute(
     request: ReadSystemRequestDto
   ): Promise<ReadSystemResponseDto> {
     try {
-      const readSystemDto: ReadSystemDto | null =
+      const readSystemResult: ReadSystemDto | null =
         await this.#readSystemRepository.findById(
           request.id
         );
-      if (!readSystemDto)
+      if (!readSystemResult)
         return Result.fail<null>(
           `System with id ${request.id} does not exist.`
         );
 
       return Result.ok<ReadSystemDto>(
-        readSystemDto
+        readSystemResult
       );
     } catch (error) {
       return Result.fail<ReadSystemDto>(error.message);

@@ -16,10 +16,9 @@ export default class ReadSelectorController extends BaseController {
   }
 
   #buildRequestDto = (httpRequest: Request): ReadSelectorRequestDto => ({
-    id: httpRequest.params.id,
+    id: httpRequest.params.selectorId,
   });
 
-  // TODO - replace all try catch with then catch
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
       const requestDto: ReadSelectorRequestDto = this.#buildRequestDto(req);

@@ -1,14 +1,14 @@
+// TODO Violation of Dependency Rule
 import { v4 as uuidv4 } from 'uuid';
-import IUseCase from '../shared';
-import { Id, Result } from '../entities/value-types';
-import { Selector, SelectorProps } from '../entities/reference-types';
+import { IUseCase, Result } from '../shared';
+import Id from '../value-types';
+import { Selector, SelectorProps } from '../entities';
+import { IReadSystemRepository, ReadSystemDto } from './read-system';
 
 export interface CreateSelectorRequestDto {
   content: string;
   systemId: string;
 }
-
-export type CreateSelectorResponseDto = Result<CreateSelectorDto | null>;
 
 export interface CreateSelectorDto {
   id: string;
@@ -17,6 +17,8 @@ export interface CreateSelectorDto {
   modifiedOn: number;
   createdOn: number;
 }
+
+export type CreateSelectorResponseDto = Result<CreateSelectorDto | null>;
 
 export interface ICreateSelectorRepository {
   findByContent(selector: string): Promise<CreateSelectorDto | null>;
@@ -28,11 +30,15 @@ export class CreateSelector
 {
   #createSelectorRepository: ICreateSelectorRepository;
 
-  public constructor(createSelectorRepository: ICreateSelectorRepository) {
-    this.#createSelectorRepository = createSelectorRepository;
-  }
+  #readSystemRepository: IReadSystemRepository;
 
-  // TODO return resolve or reject promis return instead
+  public constructor(
+    createSelectorRepository: ICreateSelectorRepository,
+    readSystemRepository: IReadSystemRepository
+  ) {
+    this.#createSelectorRepository = createSelectorRepository;
+    this.#readSystemRepository = readSystemRepository;
+  }
 
   public async execute(
     request: CreateSelectorRequestDto
@@ -41,11 +47,9 @@ export class CreateSelector
     if (!selector.value) return selector;
 
     try {
-      const createSelectorDto: CreateSelectorDto | null =
-        await this.#createSelectorRepository.findByContent(
-          selector.value.content
-        );
-      if (createSelectorDto) return Result.fail<null>('Selector is already registered');
+      const validatedRequest = await this.validateRequest(selector.value);
+      if (validatedRequest.error)
+        return Result.fail<CreateSelectorDto>(validatedRequest.error);
 
       await this.#createSelectorRepository.save(selector.value);
 
@@ -55,6 +59,23 @@ export class CreateSelector
     } catch (error) {
       return Result.fail<CreateSelectorDto>(error.message);
     }
+  }
+
+  private async validateRequest(selector: Selector): Promise<Result<null>> {
+    const readSelectorResult: CreateSelectorDto | null =
+      await this.#createSelectorRepository.findByContent(selector.content);
+    if (readSelectorResult)
+      return Result.fail<null>(
+        `Selector is already registered under ${readSelectorResult.id}`
+      );
+
+    const readSystemResult: ReadSystemDto | null =
+      await this.#readSystemRepository.findById(selector.systemId);
+
+    if (readSystemResult)
+      return Result.fail<null>(`System ${selector.systemId} not found`);
+
+    return Result.ok<null>(null);
   }
 
   #buildSelectorDto = (selector: Selector): CreateSelectorDto => ({

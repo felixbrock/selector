@@ -74,3 +74,18 @@ Bascially, all external libraries that are directly used by code (e.g. not eslin
 
 when naming classes of files use CRUD terminology rather than addSelectorRepository (instead createSelectorRepository)
 
+
+Dependency Injection
+https://blog.risingstack.com/dependency-injection-in-node-js/
+https://medium.com/@Jeffijoe/dependency-injection-in-node-js-2016-edition-f2a88efdd427
+
+
+
+----------REDEFINE--------------
+Use-case specific Dtos should only be used in the particular use-case (CRUD) context. ReadSubscription shouldn't use CreateSubsriptionDto. Even if they are representing the same object structure a separate object should be created
+
+
+Be aware of the differences between entities and value-types
+https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/
+
+Within microservice a layered architecture is followed since the limited scope allows this architecture style. Microservice ecosystem basically represents package-driven architecture

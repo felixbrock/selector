@@ -1,4 +1,4 @@
-import { Result } from '../value-types';
+import { Result } from '../shared';
 
 export interface SystemProps {
   id: string;
@@ -40,7 +40,6 @@ export class System {
   public static create(props: SystemProps): Result<System> {
     if (!props.id) return Result.fail('System must have id');
     if (!props.name) return Result.fail('System must have name');
-    // TODO move source logic to controller layer
 
     const system = new System(props);
     return Result.ok<System>(system);

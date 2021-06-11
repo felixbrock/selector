@@ -1,4 +1,4 @@
-import { Result } from '../value-types';
+import { Result } from '../shared';
 
 export interface SelectorProps {
   id: string;
@@ -49,7 +49,6 @@ export class Selector {
     if (!props.content) return Result.fail<null>('Selector must have content');
     if (!props.systemId) return Result.fail<null>('Selector must have system id');
     if (!props.id) return Result.fail<null>('Selector must have id');
-    // TODO move source logic to controller layer
 
     const selector = new Selector(props);
     return Result.ok<Selector>(selector);

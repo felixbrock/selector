@@ -16,7 +16,6 @@ export default class CreateSystemController extends BaseController {
     })
 
 
-  // TODO - replace all try catch with then catch 
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
       const requestDto : CreateSystemRequestDto = this.#buildRequestDto(req);

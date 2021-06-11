@@ -16,10 +16,9 @@ export default class ReadSystemController extends BaseController {
   }
 
   #buildRequestDto = (httpRequest: Request): ReadSystemRequestDto => ({
-    id: httpRequest.params.id,
+    id: httpRequest.params.systemId,
   });
 
-  // TODO - replace all try catch with then catch
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
       const requestDto: ReadSystemRequestDto = this.#buildRequestDto(req);

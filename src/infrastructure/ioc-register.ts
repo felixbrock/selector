@@ -10,8 +10,8 @@ import CreateSystemRepository from './persistence/create-system-repository';
 import ReadSelectorRepository from './persistence/read-selector-repository';
 import ReadSystemRepository from './persistence/read-system-repository';
 
-import SelectorDomain from '../domain/domains/selector-domain';
-import SystemDomain from '../domain/domains/system-domain';
+import SelectorDomain from '../domain/selector-domain';
+import SystemDomain from '../domain/system-domain';
 
 const iocRegister = createContainer({ injectionMode: InjectionMode.CLASSIC });
 
