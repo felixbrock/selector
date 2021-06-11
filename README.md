@@ -16,10 +16,10 @@ eslint: npm i --save-dev eslint typescript @typescript-eslint/parser @typescript
 eslint: npm install eslint-config-airbnb-typescript --save-dev
 
 (Check which versions are required. See output of previous command. Maybe installing without versions?)
-eslint: npm install eslint-plugin-import@^2.22.1 --save-dev
-eslint: npm install eslint-plugin-jsx-a11y@^6.4.1 --save-dev
-eslint: npm install eslint-plugin-react@^7.21.5 --save-dev
-eslint: npm install eslint-plugin-react-hooks@^4.2.0 --save-dev
+eslint: npm install eslint-plugin-import --save-dev
+eslint: npm install eslint-plugin-jsx-a11y --save-dev
+eslint: npm install eslint-plugin-react --save-dev
+eslint: npm install eslint-plugin-react-hooks --save-dev
 
 (https://prettier.io/docs/en/install.html)
 prettier: npm install --save-dev --save-exact prettier
@@ -30,6 +30,19 @@ prettier: npm install --save-dev eslint-config-prettier
 (https://thesoreon.com/blog/how-to-set-up-eslint-with-typescript-in-vs-code)
 vs-code: "eslint.validate": ["typescript", "typescriptreact"]
 
+Copy the following files of most recent microservice to new microservice. Some aspects might be outdated and need to be specifically defined to versions used in the new service:
+.env
+.eslintignore
+.eslintrc.json
+.gitignore
+.prettierignore
+.prettierrc.json
+tsconfig.json
+
+Check what information (e.g. scripts, dev-dependencies, dependencies, license...) are stored in package.json should be copied to new project
+
+
+------------------------------
 
 Guideline
 (https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
@@ -89,3 +102,5 @@ Be aware of the differences between entities and value-types
 https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/
 
 Within microservice a layered architecture is followed since the limited scope allows this architecture style. Microservice ecosystem basically represents package-driven architecture
+
+If a repository needs to be accessed this should happen over the execute functionality of a corresponding use-case rather than the repository interface

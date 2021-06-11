@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IUseCase, Result } from '../shared';
 import Id from '../value-types';
 import { Selector, SelectorProps } from '../entities';
-import { IReadSystemRepository, ReadSystemDto } from './read-system';
+import { GetSystemDto, GetSystem } from './get-system';
 
 export interface CreateSelectorRequestDto {
   content: string;
@@ -30,14 +30,14 @@ export class CreateSelector
 {
   #createSelectorRepository: ICreateSelectorRepository;
 
-  #readSystemRepository: IReadSystemRepository;
+  #getSystem: GetSystem;
 
   public constructor(
     createSelectorRepository: ICreateSelectorRepository,
-    readSystemRepository: IReadSystemRepository
+    getSystem: GetSystem
   ) {
     this.#createSelectorRepository = createSelectorRepository;
-    this.#readSystemRepository = readSystemRepository;
+    this.#getSystem = getSystem;
   }
 
   public async execute(
@@ -69,10 +69,10 @@ export class CreateSelector
         `Selector is already registered under ${readSelectorResult.id}`
       );
 
-    const readSystemResult: ReadSystemDto | null =
-      await this.#readSystemRepository.findById(selector.systemId);
+    const getSystemResult: Result<GetSystemDto | null> =
+      await this.#getSystem.execute({id: selector.systemId});
 
-    if (readSystemResult)
+    if (getSystemResult)
       return Result.fail<null>(`System ${selector.systemId} not found`);
 
     return Result.ok<null>(null);
