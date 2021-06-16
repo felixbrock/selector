@@ -93,9 +93,7 @@ https://blog.risingstack.com/dependency-injection-in-node-js/
 https://medium.com/@Jeffijoe/dependency-injection-in-node-js-2016-edition-f2a88efdd427
 
 
-
-----------REDEFINE--------------
-Use-case specific Dtos should only be used in the particular use-case (CRUD) context. ReadSubscription shouldn't use CreateSubsriptionDto. Even if they are representing the same object structure a separate object should be created
+Use-case specific Dtos should only be used in the particular use-case (CRUD) context. ReadSubscription shouldn't use CreateSubsriptionDto. However, CreateSubscription might use ReadSubscriptionDto if a subscription is read from the db during the CreateSubscription use-case.
 
 
 Be aware of the differences between entities and value-types
@@ -103,4 +101,12 @@ https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-li
 
 Within microservice a layered architecture is followed since the limited scope allows this architecture style. Microservice ecosystem basically represents package-driven architecture
 
-If a repository needs to be accessed this should happen over the execute functionality of a corresponding use-case rather than the repository interface
+------Redefine-----------
+If a repository functionality other than the entity's one it should happen over a corresponding use-case rather than the repository interface. However, if the corresponding action is too heavy to duplicate or is no use-case at all, than a corresponding repository interface might be called directly.
+
+https://stackoverflow.com/questions/5068984/should-the-repository-layer-return-data-transfer-objects-dto
+Input and output of repository functions have to be entities not dtos. Exception are external API calls that are not corresponding to local entity types?!
+
+No repositories for value-objects. Only aggregate roots (which are entities)
+
+

@@ -1,10 +1,6 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
-import {
-  CreateSelector,
-  CreateSelectorRequestDto,
-  CreateSelectorResponseDto,
-} from '../../../domain/use-cases/create-selector';
+import { CreateSelector, CreateSelectorRequestDto, CreateSelectorResponseDto } from '../../../domain/selector/create-selector';
 import { BaseController, CodeHttp } from '../../shared';
 
 export default class CreateSelectorController extends BaseController {

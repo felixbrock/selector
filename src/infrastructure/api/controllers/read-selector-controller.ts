@@ -1,10 +1,7 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
-import {
-  ReadSelector,
-  ReadSelectorRequestDto,
-  ReadSelectorResponseDto,
-} from '../../../domain/use-cases/read-selector';
+import { ReadSelector, ReadSelectorRequestDto, ReadSelectorResponseDto } from '../../../domain/selector/read-selector';
+
 import { BaseController, CodeHttp } from '../../shared';
 
 export default class ReadSelectorController extends BaseController {

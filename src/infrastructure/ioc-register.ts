@@ -1,14 +1,16 @@
 import { InjectionMode, asClass, createContainer } from 'awilix';
 
-import { CreateSelector } from '../domain/use-cases/create-selector';
-import { ReadSelector } from '../domain/use-cases/read-selector';
-import { GetSystem } from '../domain/use-cases/get-system';
 
-import CreateSelectorRepository from './persistence/create-selector-repository';
-import ReadSelectorRepository from './persistence/read-selector-repository';
+
 import GetSystemRepository from './persistence/get-system-repository';
 
 import SelectorDomain from '../domain/selector-domain';
+import { CreateSelector } from '../domain/selector/create-selector';
+import { ReadSelector } from '../domain/selector/read-selector';
+import { CreateAlert } from '../domain/alert/create-alert';
+import { GetSystem } from '../domain/get-system/get-system';
+import SelectorRepository from './persistence/selector-repository';
+import { UpdateSelector } from '../domain/selector/update-selector';
 
 const iocRegister = createContainer({ injectionMode: InjectionMode.CLASSIC });
 
@@ -16,11 +18,13 @@ iocRegister.register({
   selectorDomain: asClass(SelectorDomain),
 
   createSelector: asClass(CreateSelector),
+  updateSelector: asClass(UpdateSelector),
   readSelector: asClass(ReadSelector),
+  createAlert: asClass(CreateAlert),
+
   getSystem: asClass(GetSystem),
 
-  createSelectorRepository: asClass(CreateSelectorRepository),
-  readSelectorRepository: asClass(ReadSelectorRepository),
+  selectorRepository: asClass(SelectorRepository),
 
   getSystemRepository: asClass(GetSystemRepository),
 });
