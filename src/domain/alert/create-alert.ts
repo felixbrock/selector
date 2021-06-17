@@ -5,6 +5,8 @@ import AlertDto from './alert-dto';
 import SelectorDto from '../selector/selector-dto';
 import { UpdateSelector } from '../selector/update-selector';
 import ISelectorRepository from '../selector/i-selector-repository';
+import { PostWarning } from '../system-api/post-warning';
+import WarningDto from '../system-api/warning-dto';
 
 export interface CreateAlertRequestDto {
   selectorId: string;
@@ -19,12 +21,16 @@ export class CreateAlert
 
   #updateSelector: UpdateSelector;
 
+  #postWarning: PostWarning;
+
   public constructor(
     selectorRepository: ISelectorRepository,
-    updateSelector: UpdateSelector
+    updateSelector: UpdateSelector,
+    postWarning: PostWarning
   ) {
     this.#selectorRepository = selectorRepository;
     this.#updateSelector = updateSelector;
+    this.#postWarning = postWarning;
   }
 
   public async execute(
@@ -34,9 +40,11 @@ export class CreateAlert
     if (!alert.value) return alert;
 
     try {
-      const validatedRequest = await this.validateRequest(request.selectorId);
-      if (validatedRequest.error)
-        return Result.fail<AlertDto>(validatedRequest.error);
+      const selectorDto: SelectorDto | null = await this.#selectorRepository.findById(
+        request.selectorId
+      );
+      if (!selectorDto)
+        return Result.fail<null>(`Selector with id ${request.selectorId} does not exist`);
 
       const alertDto = this.#buildAlertDto(alert.value);
 
@@ -53,20 +61,22 @@ export class CreateAlert
           `Couldn't update selector ${request.selectorId}`
         );
 
+        const postWarningResult: Result<WarningDto | null> =
+        await this.#postWarning.execute({
+          systemId: selectorDto.systemId
+        });
+
+      if (postWarningResult.error)
+        return Result.fail<null>(postWarningResult.error);
+      if (!postWarningResult.value)
+        return Result.fail<null>(
+          `Couldn't create warning for system ${selectorDto.systemId}`
+        );
+
       return Result.ok<AlertDto>(alertDto);
     } catch (error) {
       return Result.fail<AlertDto>(error.message);
     }
-  }
-
-  private async validateRequest(selectorId: string): Promise<Result<null>> {
-    const selector: SelectorDto | null = await this.#selectorRepository.findById(
-      selectorId
-    );
-    if (!selector)
-      return Result.fail<null>(`Selector with id ${selectorId} does not exist`);
-
-    return Result.ok<null>(null);
   }
 
   #buildAlertDto = (alert: Alert): AlertDto => ({

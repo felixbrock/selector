@@ -109,4 +109,4 @@ Input and output of repository functions have to be entities not dtos. Exception
 
 No repositories for value-objects. Only aggregate roots (which are entities)
 
-
+Normally, value-object use-cases (like alert or warning use-cases) are stored in their own seperate folder, independet of its root-entity use-cases (like systems or selectors). However, when making API calls e.g. to get-system and post-warning only Dtos are reference and, hence, can stored in one common folder (like system-api).
