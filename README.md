@@ -99,6 +99,7 @@ Use-case specific Dtos should only be used in the particular use-case (CRUD) con
 Be aware of the differences between entities and value-types
 https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/
 
+------Redefine-----------
 Within microservice a layered architecture is followed since the limited scope allows this architecture style. Microservice ecosystem basically represents package-driven architecture
 
 ------Redefine-----------
@@ -110,3 +111,6 @@ Input and output of repository functions have to be entities not dtos. Exception
 No repositories for value-objects. Only aggregate roots (which are entities)
 
 Normally, value-object use-cases (like alert or warning use-cases) are stored in their own seperate folder, independet of its root-entity use-cases (like systems or selectors). However, when making API calls e.g. to get-system and post-warning only Dtos are reference and, hence, can stored in one common folder (like system-api).
+
+https://stackoverflow.com/questions/25385559/rest-api-best-practices-args-in-query-string-vs-in-request-body#:~:text=Usually%20the%20content%20body%20is,specify%20the%20exact%20data%20requested.&text=in%20the%20body%20but%20when,some%20property%20of%20the%20files.
+Usually the content body is used for the data that is to be uploaded/downloaded to/from the server and the query parameters are used to specify the exact data requested. If you are not uploading data in some form to persistence than query params should be used. E.g. create alert is providing the selectorId which will not be uploaded to the db rather than used to identify the corresponding selector to create an alert for.

@@ -1,6 +1,7 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
 import { CreateAlert, CreateAlertRequestDto, CreateAlertResponseDto } from '../../../domain/alert/create-alert';
+import Result from '../../../domain/value-types/transient-types';
 import { BaseController, CodeHttp } from '../../shared';
 
 export default class CreateAlertController extends BaseController {
@@ -11,14 +12,27 @@ export default class CreateAlertController extends BaseController {
     this.#createAlert = createAlert;
   }
 
-  #buildRequestDto = (httpRequest: Request): CreateAlertRequestDto => ({
-      selectorId: httpRequest.body.selectorId,
-    })
+  #buildRequestDto = (
+    httpRequest: Request
+  ): Result<CreateAlertRequestDto> => {
+    const { selectorId } = httpRequest.query;
+    if (typeof selectorId === 'string')
+      return Result.ok<CreateAlertRequestDto>({
+        selectorId,
+      });
+    return Result.fail<CreateAlertRequestDto>(
+      'request query parameter subscriptionId is supposed to be in string format'
+    );
+  };
 
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
-      const requestDto : CreateAlertRequestDto = this.#buildRequestDto(req);
-      const useCaseResult : CreateAlertResponseDto = await this.#createAlert.execute(requestDto);
+      const buildDtoResult: Result<CreateAlertRequestDto> = this.#buildRequestDto(req);
+
+      if(buildDtoResult.error) return CreateAlertController.badRequest(res, buildDtoResult.error);
+      if(!buildDtoResult.value) return CreateAlertController.badRequest(res, 'Invalid request query paramerters');
+
+      const useCaseResult : CreateAlertResponseDto = await this.#createAlert.execute(buildDtoResult.value);
 
       if (useCaseResult.error) {
         return CreateAlertController.badRequest(res, useCaseResult.error);
