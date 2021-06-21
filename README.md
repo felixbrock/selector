@@ -114,3 +114,10 @@ Normally, value-object use-cases (like alert or warning use-cases) are stored in
 
 https://stackoverflow.com/questions/25385559/rest-api-best-practices-args-in-query-string-vs-in-request-body#:~:text=Usually%20the%20content%20body%20is,specify%20the%20exact%20data%20requested.&text=in%20the%20body%20but%20when,some%20property%20of%20the%20files.
 Usually the content body is used for the data that is to be uploaded/downloaded to/from the server and the query parameters are used to specify the exact data requested. If you are not uploading data in some form to persistence than query params should be used. E.g. create alert is providing the selectorId which will not be uploaded to the db rather than used to identify the corresponding selector to create an alert for.
+
+Instead of returning rather throw errors in try block of try/catch
+
+https://softwareengineering.stackexchange.com/questions/191596/is-it-ok-to-partially-change-a-collection-with-put-or-delete/266728
+Say, you want to update a single product, you make a PUT to /products/{id}. If you want to partially update a single product (not updating every field), you could also use a PATCH to /products/{id}. The same goes for deletion of a single entity (DELETE to /products/{id}).
+
+

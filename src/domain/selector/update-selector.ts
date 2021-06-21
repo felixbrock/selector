@@ -6,6 +6,8 @@ import Result from '../value-types/transient-types';
 import { Alert } from '../value-types';
 import AlertDto from '../alert/alert-dto';
 
+// TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
+
 export interface UpdateSelectorRequestDto {
   id: string;
   content?: string;
