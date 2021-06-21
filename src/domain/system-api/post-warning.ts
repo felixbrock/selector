@@ -26,7 +26,7 @@ export class PostWarning
       const warningDto = await this.#systemApiRepository.postWarning(request.systemId);
 
       if (!warningDto)
-        return Result.fail<null>(`Creation of warning for ${request.systemId} failed`);
+        throw new Error(`Creation of warning for ${request.systemId} failed`);
 
       return Result.ok<WarningDto>(warningDto);
     } catch (error) {

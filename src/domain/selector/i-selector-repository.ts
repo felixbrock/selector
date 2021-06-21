@@ -6,5 +6,6 @@ export default interface ISelectorRepository {
   findByContent(content: string): Promise<Selector | null>;
   update(selector: Selector): Promise<Result<null>>;
   save(selector: Selector): Promise<Result<null>>;
+  delete(selectorId: string): Promise<Result<null>>;
   // eslint-disable-next-line semi
 }

@@ -34,7 +34,7 @@ export class UpdateSelector
       );
 
       if (!selector)
-        return Result.fail<SelectorDto>(
+        throw new Error(
           `Selector with id ${request.id} does not exist`
         );
 

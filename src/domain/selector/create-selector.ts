@@ -33,7 +33,7 @@ export class CreateSelector
       const readSelectorResult: SelectorDto | null =
         await this.#selectorRepository.findByContent(selector.value.content);
       if (readSelectorResult)
-        return Result.fail<null>(
+        throw new Error(
           `Selector ${readSelectorResult.content} is already registered under ${readSelectorResult.id}`
         );
 

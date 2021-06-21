@@ -103,7 +103,7 @@ https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-li
 Within microservice a layered architecture is followed since the limited scope allows this architecture style. Microservice ecosystem basically represents package-driven architecture
 
 ------Redefine-----------
-If a repository functionality other than the entity's one it should happen over a corresponding use-case rather than the repository interface. However, if the corresponding action is too heavy to duplicate or is no use-case at all, than a corresponding repository interface might be called directly.
+TRY TO USE USE-CASES WHENEVER POSSIBLE. Try to understand how likely it is that code changes. the higher the likehood, the more use-cases should be used. If a repository functionality other than the entity's one it should happen over a corresponding use-case rather than the repository interface. However, if the corresponding action is too heavy to duplicate or is no use-case at all, than a corresponding repository interface might be called directly.
 
 https://stackoverflow.com/questions/5068984/should-the-repository-layer-return-data-transfer-objects-dto
 Input and output of repository functions have to be entities not dtos. Exception are external API calls that are not corresponding to local entity types?!

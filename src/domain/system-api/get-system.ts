@@ -27,7 +27,7 @@ export class GetSystem
         await this.#systemApiRepository.getSystemById(request.id);
 
       if (!getSystemResult)
-        return Result.fail<null>(
+        throw new Error(
           `No system found for id ${request.id}`
         );
 

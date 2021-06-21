@@ -26,7 +26,7 @@ export class ReadSelector
       const selector: Selector | null =
         await this.#selectorRepository.findById(request.id);
       if (!selector)
-        return Result.fail<null>(
+        throw new Error(
           `Selector with id ${request.id} does not exist`
         );
 

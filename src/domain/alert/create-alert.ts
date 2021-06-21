@@ -44,7 +44,7 @@ export class CreateAlert
         request.selectorId
       );
       if (!selectorDto)
-        return Result.fail<null>(`Selector with id ${request.selectorId} does not exist`);
+        throw new Error(`Selector with id ${request.selectorId} does not exist`);
 
       const alertDto = this.#buildAlertDto(alert.value);
 
@@ -55,9 +55,9 @@ export class CreateAlert
         });
 
       if (updateSelectorResult.error)
-        return Result.fail<null>(updateSelectorResult.error);
+        throw new Error(updateSelectorResult.error);
       if (!updateSelectorResult.value)
-        return Result.fail<null>(
+        throw new Error(
           `Couldn't update selector ${request.selectorId}`
         );
 
@@ -67,9 +67,9 @@ export class CreateAlert
         });
 
       if (postWarningResult.error)
-        return Result.fail<null>(postWarningResult.error);
+        throw new Error(postWarningResult.error);
       if (!postWarningResult.value)
-        return Result.fail<null>(
+        throw new Error(
           `Couldn't create warning for system ${selectorDto.systemId}`
         );
 

@@ -6,7 +6,6 @@ import WarningDto from '../../domain/system-api/warning-dto';
 const apiRoot = 'http://localhost:3002/api/v1';
 
 export default class SystemApiRepositoryImpl implements ISystemApiRepository {
-  // TODO Should return a selector object and not a DTO!! When to use a Dto?
   public getSystemById = async (systemId: string): Promise<SystemDto | null> => {
     try {
       const response = await fetch(`${apiRoot}/system/${systemId}`);
