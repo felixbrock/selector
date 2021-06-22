@@ -72,6 +72,21 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     }
   }
 
+  public async all(): Promise<Selector[] | null> {
+    const data: string = fs.readFileSync(
+      path.resolve(__dirname, '../../../db.json'),
+      'utf-8'
+    );
+    const db = JSON.parse(data);
+
+    const {selectors} = db;
+
+    if (!selectors || selectors.length === 0) return null;
+    return selectors.map((selector : SelectorPersistence) =>
+      this.#toEntity(this.#buildProperties(selector))
+    );
+  }
+
   public async update(selector: Selector): Promise<Result<null>> {
     const data: string = fs.readFileSync(
       path.resolve(__dirname, '../../../db.json'),

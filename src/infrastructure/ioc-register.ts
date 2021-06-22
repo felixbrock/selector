@@ -12,6 +12,8 @@ import { PostWarning } from '../domain/system-api/post-warning';
 import { DeleteSelector } from '../domain/selector/delete-selector';
 import { DeleteTargets } from '../domain/subscription-api/delete-targets';
 import SubscriptionApiRepository from './persistence/subscription-api-repository';
+import { ReadSelectors } from '../domain/selector/read-selectors';
+import { DeleteSelectors } from '../domain/selector/delete-selectors';
 
 const iocRegister = createContainer({ injectionMode: InjectionMode.CLASSIC });
 
@@ -21,7 +23,9 @@ iocRegister.register({
   createSelector: asClass(CreateSelector),
   updateSelector: asClass(UpdateSelector),
   readSelector: asClass(ReadSelector),
+  readSelectors: asClass(ReadSelectors),
   deleteSelector: asClass(DeleteSelector),
+  deleteSelectors: asClass(DeleteSelectors),
 
   createAlert: asClass(CreateAlert),
 

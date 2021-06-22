@@ -120,4 +120,7 @@ Instead of returning rather throw errors in try block of try/catch
 https://softwareengineering.stackexchange.com/questions/191596/is-it-ok-to-partially-change-a-collection-with-put-or-delete/266728
 Say, you want to update a single product, you make a PUT to /products/{id}. If you want to partially update a single product (not updating every field), you could also use a PATCH to /products/{id}. The same goes for deletion of a single entity (DELETE to /products/{id}).
 
+https://stackoverflow.com/questions/6845772/rest-uri-convention-singular-or-plural-name-of-resource-while-creating-it
+Use singular when accessing a single resource e.g. subscription/1213445 and plural when acessing multiple resouces e.g. subscriptions
+
 

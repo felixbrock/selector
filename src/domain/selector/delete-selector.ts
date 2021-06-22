@@ -1,7 +1,6 @@
 import Result from '../value-types/transient-types';
 import IUseCase from '../services/use-case';
 import ISelectorRepository from './i-selector-repository';
-import SelectorDto from './selector-dto';
 import { Selector } from '../entities';
 import { DeleteTargets } from '../subscription-api/delete-targets';
 
@@ -9,7 +8,7 @@ export interface DeleteSelectorRequestDto {
   id: string;
 }
 
-export type DeleteSelectorResponseDto = Result<SelectorDto | null>;
+export type DeleteSelectorResponseDto = Result<null>;
 
 export class DeleteSelector
   implements IUseCase<DeleteSelectorRequestDto, DeleteSelectorResponseDto>
@@ -46,9 +45,9 @@ export class DeleteSelector
 
       if(deleteSelectorResult.error) throw new Error(deleteSelectorResult.error);
 
-      return Result.ok<SelectorDto>(selector);
+      return Result.ok<null>();
     } catch (error) {
-      return Result.fail<SelectorDto>(error.message);
+      return Result.fail<null>(error.message);
     }
   }
 }
