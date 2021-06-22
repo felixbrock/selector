@@ -11,14 +11,14 @@ export default class SubscriptionApiRepositoryImpl implements ISubscriptionApiRe
       const params = new URLSearchParams();
       params.append('selectorId', selectorId);
 
-      const response = await fetch(`${apiRoot}/subscriptions/targets`, {
+      await fetch(`${apiRoot}/subscriptions/targets`, {
         method: 'DELETE',
         body: params,
       });
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        return jsonResponse;
-      }
+      // if (response.ok) {
+      //   const jsonResponse = await response.json();
+      //   return jsonResponse;
+      // }
       return Result.ok<null>();
     } catch (error) {
       return Result.fail<null>(error.message);

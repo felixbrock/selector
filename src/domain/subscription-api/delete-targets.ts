@@ -28,7 +28,7 @@ export class DeleteTargets
         request.selectorId
       );
       if (!selectorResult)
-        throw new Error(`Targets with id ${request.selectorId} does not exist`);
+        throw new Error(`No targets for selector ${request.selectorId} exist`);
 
       return Result.ok<null>();
     } catch (error) {
