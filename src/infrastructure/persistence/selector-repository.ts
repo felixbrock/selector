@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { Selector, SelectorProperties } from '../../domain/entities';
-import ISelectorRepository, {
+import {
+  ISelectorRepository,
   AlertQueryDto,
   SelectorQueryDto,
 } from '../../domain/selector/i-selector-repository';
@@ -84,9 +85,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       alertMatch = !!result;
     } else alertMatch = true;
 
-    return (
-      contentMatch && systemIdMatch && modifiedOnMatch && alertMatch
-    );
+    return contentMatch && systemIdMatch && modifiedOnMatch && alertMatch;
   }
 
   public async all(): Promise<Selector[]> {
@@ -184,18 +183,15 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   }
 
   #toEntity = (selectorProperties: SelectorProperties): Selector => {
-    const createSelectorResult: Result<Selector> = Selector.create(
-      selectorProperties
-    );
+    const createSelectorResult: Result<Selector> =
+      Selector.create(selectorProperties);
 
-    if (createSelectorResult.error)
-      throw new Error(createSelectorResult.error);
+    if (createSelectorResult.error) throw new Error(createSelectorResult.error);
     if (!createSelectorResult.value)
       throw new Error('Selector creation failed');
 
     return createSelectorResult.value;
-  }
-    
+  };
 
   #buildProperties = (selector: SelectorPersistence): SelectorProperties => ({
     id: selector.id,

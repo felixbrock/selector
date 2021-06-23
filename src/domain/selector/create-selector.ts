@@ -5,7 +5,7 @@ import IUseCase from '../services/use-case';
 import { Id } from '../value-types';
 import { Selector, SelectorProperties } from '../entities';
 import SelectorDto from './selector-dto';
-import ISelectorRepository from './i-selector-repository';
+import {ISelectorRepository} from './i-selector-repository';
 
 export interface CreateSelectorRequestDto {
   content: string;

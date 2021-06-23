@@ -1,7 +1,7 @@
 import IUseCase from '../services/use-case';
 import { Selector } from '../entities';
 import SelectorDto from './selector-dto';
-import ISelectorRepository from './i-selector-repository';
+import {ISelectorRepository} from './i-selector-repository';
 import Result from '../value-types/transient-types';
 import { Alert } from '../value-types';
 import AlertDto from '../alert/alert-dto';

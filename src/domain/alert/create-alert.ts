@@ -4,7 +4,7 @@ import { Alert } from '../value-types';
 import AlertDto from './alert-dto';
 import SelectorDto from '../selector/selector-dto';
 import { UpdateSelector } from '../selector/update-selector';
-import ISelectorRepository from '../selector/i-selector-repository';
+import {ISelectorRepository} from '../selector/i-selector-repository';
 import { PostWarning } from '../system-api/post-warning';
 import WarningDto from '../system-api/warning-dto';
 

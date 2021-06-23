@@ -1,6 +1,6 @@
 import Result from '../value-types/transient-types';
 import IUseCase from '../services/use-case';
-import ISelectorRepository from './i-selector-repository';
+import {ISelectorRepository} from './i-selector-repository';
 import SelectorDto from './selector-dto';
 import { Selector } from '../entities';
 

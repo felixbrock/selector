@@ -13,7 +13,7 @@ export interface AlertQueryDto {
 }
 
 
-export default interface ISelectorRepository {
+export interface ISelectorRepository {
   findOne(id: string): Promise<Selector | null>;
   findBy(
     subscriptionQueryDto: SelectorQueryDto

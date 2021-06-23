@@ -2,7 +2,7 @@ import { Selector } from '../entities';
 import IUseCase from '../services/use-case';
 import AlertDto from '../alert/alert-dto';
 import Result from '../value-types/transient-types';
-import ISelectorRepository, { SelectorQueryDto } from './i-selector-repository';
+import {ISelectorRepository, SelectorQueryDto } from './i-selector-repository';
 import SelectorDto from './selector-dto';
 import { Alert } from '../value-types';
 
