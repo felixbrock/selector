@@ -2,7 +2,7 @@ import { Selector } from "../entities";
 import Result from "../value-types/transient-types";
 
 export default interface ISelectorRepository {
-  findById(id: string): Promise<Selector | null>;
+  findOne(id: string): Promise<Selector | null>;
   findByContent(content: string): Promise<Selector | null>;
   all(): Promise<Selector[] | null>;
   update(selector: Selector): Promise<Result<null>>;

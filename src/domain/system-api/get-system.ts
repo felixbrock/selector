@@ -24,7 +24,7 @@ export class GetSystem
   ): Promise<GetSystemResponseDto> {
     try {
       const getSystemResult: SystemDto | null =
-        await this.#systemApiRepository.getSystemById(request.id);
+        await this.#systemApiRepository.getOne(request.id);
 
       if (!getSystemResult)
         throw new Error(

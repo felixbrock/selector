@@ -19,7 +19,7 @@ interface SelectorPersistence {
 }
 
 export default class SelectorRepositoryImpl implements ISelectorRepository {
-  public async findById (id: string): Promise<Selector | null> {
+  public async findOne (id: string): Promise<Selector | null> {
     const data: string = fs.readFileSync(
       path.resolve(__dirname, '../../../db.json'),
       'utf-8'

@@ -29,7 +29,7 @@ export class DeleteSelector
     request: DeleteSelectorRequestDto
   ): Promise<DeleteSelectorResponseDto> {
     try {
-      const selector: Selector | null = await this.#selectorRepository.findById(
+      const selector: Selector | null = await this.#selectorRepository.findOne(
         request.id
       );
       if (!selector)

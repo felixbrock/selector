@@ -29,7 +29,7 @@ export class UpdateSelector
     request: UpdateSelectorRequestDto
   ): Promise<UpdateSelectorResponseDto> {
     try {
-      const selector: Selector | null = await this.#selectorRepository.findById(
+      const selector: Selector | null = await this.#selectorRepository.findOne(
         request.id
       );
 

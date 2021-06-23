@@ -40,7 +40,7 @@ export class CreateAlert
     if (!alert.value) return alert;
 
     try {
-      const selectorDto: SelectorDto | null = await this.#selectorRepository.findById(
+      const selectorDto: SelectorDto | null = await this.#selectorRepository.findOne(
         request.selectorId
       );
       if (!selectorDto)

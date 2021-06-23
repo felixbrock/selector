@@ -123,4 +123,14 @@ Say, you want to update a single product, you make a PUT to /products/{id}. If y
 https://stackoverflow.com/questions/6845772/rest-uri-convention-singular-or-plural-name-of-resource-while-creating-it
 Use singular when accessing a single resource e.g. subscription/1213445 and plural when acessing multiple resouces e.g. subscriptions
 
+https://stackoverflow.com/questions/37980559/is-it-better-to-return-undefined-or-null-from-a-javascript-function
+"there is no such object" is represented using null.
+"there is no such property" is represented using undefined.
+"there is no such element" is represented using null.
+
+https://stackoverflow.com/questions/1969993/is-it-better-to-return-null-or-empty-collection
+It is considered a best practice to NEVER return null when returning a collection or enumerable. ALWAYS return an empty enumerable/collection. It prevents the aforementioned nonsense, and prevents your car getting egged by co-workers and users of your classes.
+https://stackoverflow.com/questions/1628434/null-objects-vs-empty-objects
+I tend to be dubious of code with lots of NULLs, and try to refactor them away where possible with exceptions, empty collections, Java Optionals, and so on.
+
 

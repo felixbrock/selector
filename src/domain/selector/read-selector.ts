@@ -24,7 +24,7 @@ export class ReadSelector
   ): Promise<ReadSelectorResponseDto> {
     try {
       const selector: Selector | null =
-        await this.#selectorRepository.findById(request.id);
+        await this.#selectorRepository.findOne(request.id);
       if (!selector)
         throw new Error(
           `Selector with id ${request.id} does not exist`

@@ -6,7 +6,7 @@ import WarningDto from '../../domain/system-api/warning-dto';
 const apiRoot = 'http://localhost:3002/api/v1';
 
 export default class SystemApiRepositoryImpl implements ISystemApiRepository {
-  public getSystemById = async (systemId: string): Promise<SystemDto | null> => {
+  public getOne = async (systemId: string): Promise<SystemDto | null> => {
     try {
       const response = await fetch(`${apiRoot}/system/${systemId}`);
       if (response.ok) {
