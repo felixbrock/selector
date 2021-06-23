@@ -2,14 +2,21 @@ import { Selector } from '../entities';
 import IUseCase from '../services/use-case';
 import AlertDto from '../alert/alert-dto';
 import Result from '../value-types/transient-types';
-import ISelectorRepository from './i-selector-repository';
+import ISelectorRepository, { SelectorQueryDto } from './i-selector-repository';
 import SelectorDto from './selector-dto';
 import { Alert } from '../value-types';
+
+export interface ReadSelectorsRequestDto {
+  systemId?: string;
+  content?: string;
+  alert?: { createdOn?: number };
+  modifiedOn?: number;
+}
 
 export type ReadSelectorsResponseDto = Result<SelectorDto[] | null>;
 
 export class ReadSelectors
-  implements IUseCase<undefined, ReadSelectorsResponseDto>
+  implements IUseCase<ReadSelectorsRequestDto, ReadSelectorsResponseDto>
 {
   #selectorRepository: ISelectorRepository;
 
@@ -17,10 +24,11 @@ export class ReadSelectors
     this.#selectorRepository = selectorRepository;
   }
 
-  public async execute(): Promise<ReadSelectorsResponseDto> {
+  public async execute(request: ReadSelectorsRequestDto): Promise<ReadSelectorsResponseDto> {
     try {
-      const selectors: Selector[] | null = await this.#selectorRepository.all();
-      if (!selectors) throw new Error(`Selectors do not exist`);
+      const selectors: Selector[] | null =
+        await this.#selectorRepository.findBy(this.#buildSelectorQueryDto(request));
+      if (!selectors) throw new Error(`Queried selectors do not exist`);
 
       return Result.ok<SelectorDto[]>(
         selectors.map((selector) => this.#buildSelectorDto(selector))
@@ -37,10 +45,19 @@ export class ReadSelectors
     ),
     modifiedOn: selector.modifiedOn,
     content: selector.content,
-    systemId: selector.systemId
+    systemId: selector.systemId,
   });
 
   #buildAlertDto = (alert: Alert): AlertDto => ({
     createdOn: alert.createdOn,
+  });
+
+  #buildSelectorQueryDto = (
+    request: ReadSelectorsRequestDto
+  ): SelectorQueryDto => ({
+    content: request.content,
+    systemId: request.systemId,
+    alert: request.alert,
+    modifiedOn: request.modifiedOn
   });
 }

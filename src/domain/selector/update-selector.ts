@@ -63,11 +63,11 @@ export class UpdateSelector
     const selectorToModify = selector;
 
     if (request.content) {
-      const readSelectorResult: SelectorDto | null =
-        await this.#selectorRepository.findByContent(request.content);
-      if (readSelectorResult)
+      const readSelectorResult: SelectorDto[] =
+        await this.#selectorRepository.findBy({content: request.content});
+      if (readSelectorResult.length)
         throw new Error(
-          `Selector ${readSelectorResult.content} is already registered under ${readSelectorResult.id}`
+          `Selector ${readSelectorResult[0].content} is already registered under ${readSelectorResult[0].id}`
         );
 
       selectorToModify.content = request.content;

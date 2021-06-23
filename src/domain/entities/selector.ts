@@ -63,12 +63,12 @@ export class Selector {
 
   public static create(
     properties: SelectorProperties
-  ): Result<Selector | null> {
+  ): Result<Selector> {
     if (!properties.content)
-      return Result.fail<null>('Selector must have content');
+      return Result.fail<Selector>('Selector must have content');
     if (!properties.systemId)
-      return Result.fail<null>('Selector must have system id');
-    if (!properties.id) return Result.fail<null>('Selector must have id');
+      return Result.fail<Selector>('Selector must have system id');
+    if (!properties.id) return Result.fail<Selector>('Selector must have id');
 
     const selector = new Selector(properties);
     return Result.ok<Selector>(selector);

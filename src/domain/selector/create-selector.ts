@@ -30,11 +30,11 @@ export class CreateSelector
     if (!selector.value) return selector;
 
     try {
-      const readSelectorResult: SelectorDto | null =
-        await this.#selectorRepository.findByContent(selector.value.content);
-      if (readSelectorResult)
+      const readSelectorResult: SelectorDto[]  =
+        await this.#selectorRepository.findBy({content: selector.value.content});
+      if (readSelectorResult.length)
         throw new Error(
-          `Selector ${readSelectorResult.content} is already registered under ${readSelectorResult.id}`
+          `Selector ${readSelectorResult[0].content} is already registered under ${readSelectorResult[0].id}`
         );
 
       await this.#selectorRepository.save(selector.value);

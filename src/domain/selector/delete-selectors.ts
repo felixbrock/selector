@@ -30,7 +30,7 @@ export class DeleteSelectors
     try {
       // read Selectors
       const readSelectorsResult: Result<SelectorDto[] | null> =
-        await this.#readSelectors.execute();
+        await this.#readSelectors.execute({});
 
       if (readSelectorsResult.error) throw new Error(readSelectorsResult.error);
       if (!readSelectorsResult.value)

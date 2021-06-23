@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { Selector, SelectorProperties } from '../../domain/entities';
-import ISelectorRepository from '../../domain/selector/i-selector-repository';
+import ISelectorRepository, {
+  AlertQueryDto,
+  SelectorQueryDto,
+} from '../../domain/selector/i-selector-repository';
 import { Alert } from '../../domain/value-types';
 import Result from '../../domain/value-types/transient-types';
 
@@ -19,7 +22,7 @@ interface SelectorPersistence {
 }
 
 export default class SelectorRepositoryImpl implements ISelectorRepository {
-  public async findOne (id: string): Promise<Selector | null> {
+  public async findOne(id: string): Promise<Selector | null> {
     const data: string = fs.readFileSync(
       path.resolve(__dirname, '../../../db.json'),
       'utf-8'
@@ -32,23 +35,74 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
     if (!result) return null;
     return this.#toEntity(this.#buildProperties(result));
-  };
+  }
 
-  public async findByContent (content: string): Promise<Selector | null> {
+  public async findBy(selectorQueryDto: SelectorQueryDto): Promise<Selector[]> {
+    if (!Object.keys(selectorQueryDto).length) return this.all();
+
     const data: string = fs.readFileSync(
       path.resolve(__dirname, '../../../db.json'),
       'utf-8'
     );
     const db = JSON.parse(data);
 
-    const result = db.selectors.find(
-      (selectorEntity: { content: string }) =>
-        selectorEntity.content === content
+    const selectors: SelectorPersistence[] = db.selectors.filter(
+      (selectorEntity: SelectorPersistence) =>
+        this.findByCallback(selectorEntity, selectorQueryDto)
     );
 
-    if (!result) return null;
-    return this.#toEntity(this.#buildProperties(result));
-  };
+    if (!selectors || !!selectors.length) return [];
+    return selectors.map((selector: SelectorPersistence) =>
+      this.#toEntity(this.#buildProperties(selector))
+    );
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private findByCallback(
+    selectorEntity: SelectorPersistence,
+    selectorQueryDto: SelectorQueryDto
+  ): boolean {
+    const contentMatch = selectorQueryDto.content
+      ? selectorEntity.content === selectorQueryDto.content
+      : true;
+    const systemIdMatch = selectorQueryDto.systemId
+      ? selectorEntity.systemId === selectorQueryDto.systemId
+      : true;
+    const modifiedOnMatch = selectorQueryDto.modifiedOn
+      ? selectorEntity.modifiedOn === selectorQueryDto.modifiedOn
+      : true;
+
+    let alertMatch: boolean;
+    if (selectorQueryDto.alert === true) {
+      const queryTarget: AlertQueryDto = selectorQueryDto.alert;
+      const result: AlertPersistence | undefined = selectorEntity.alerts.find(
+        (alert: AlertPersistence) =>
+          queryTarget.createdOn
+            ? alert.createdOn === queryTarget.createdOn
+            : true
+      );
+      alertMatch = !!result;
+    } else alertMatch = true;
+
+    return (
+      contentMatch && systemIdMatch && modifiedOnMatch && alertMatch
+    );
+  }
+
+  public async all(): Promise<Selector[]> {
+    const data: string = fs.readFileSync(
+      path.resolve(__dirname, '../../../db.json'),
+      'utf-8'
+    );
+    const db = JSON.parse(data);
+
+    const { selectors } = db;
+
+    if (!selectors || selectors.length === 0) return [];
+    return selectors.map((selector: SelectorPersistence) =>
+      this.#toEntity(this.#buildProperties(selector))
+    );
+  }
 
   public async save(selector: Selector): Promise<Result<null>> {
     const data: string = fs.readFileSync(
@@ -70,21 +124,6 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     } catch (error) {
       return Result.fail<null>(error.message);
     }
-  }
-
-  public async all(): Promise<Selector[] | null> {
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
-
-    const {selectors} = db;
-
-    if (!selectors || selectors.length === 0) return null;
-    return selectors.map((selector : SelectorPersistence) =>
-      this.#toEntity(this.#buildProperties(selector))
-    );
   }
 
   public async update(selector: Selector): Promise<Result<null>> {
@@ -115,7 +154,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public async delete(id: string) : Promise<Result<null>> {
+  public async delete(id: string): Promise<Result<null>> {
     const data: string = fs.readFileSync(
       path.resolve(__dirname, '../../../db.json'),
       'utf-8'
@@ -124,14 +163,11 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
     try {
       const selectors: SelectorPersistence[] = db.selectors.filter(
-        (selectorEntity: { id: string }) =>
-          selectorEntity.id !== id
+        (selectorEntity: { id: string }) => selectorEntity.id !== id
       );
 
       if (selectors.length === db.selectors.length)
-        throw new Error(
-          `Subscription with id ${id} does not exist`
-        );
+        throw new Error(`Selector with id ${id} does not exist`);
 
       db.selectors = selectors;
 
@@ -147,8 +183,19 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     }
   }
 
-  #toEntity = (selectorProperties: SelectorProperties): Selector | null =>
-    Selector.create(selectorProperties).value || null;
+  #toEntity = (selectorProperties: SelectorProperties): Selector => {
+    const createSelectorResult: Result<Selector> = Selector.create(
+      selectorProperties
+    );
+
+    if (createSelectorResult.error)
+      throw new Error(createSelectorResult.error);
+    if (!createSelectorResult.value)
+      throw new Error('Selector creation failed');
+
+    return createSelectorResult.value;
+  }
+    
 
   #buildProperties = (selector: SelectorPersistence): SelectorProperties => ({
     id: selector.id,

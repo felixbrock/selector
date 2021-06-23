@@ -3,6 +3,7 @@ import { CreateSelector } from './selector/create-selector';
 import { DeleteSelector } from './selector/delete-selector';
 import { DeleteSelectors } from './selector/delete-selectors';
 import { ReadSelector } from './selector/read-selector';
+import { ReadSelectors } from './selector/read-selectors';
 import { UpdateSelector } from './selector/update-selector';
 
 export default class SelectorDomain {
@@ -11,6 +12,8 @@ export default class SelectorDomain {
   #updateSelector: UpdateSelector;
 
   #readSelector: ReadSelector;
+
+  #readSelectors: ReadSelectors;
 
   #deleteSelector: DeleteSelector;
 
@@ -30,6 +33,10 @@ export default class SelectorDomain {
     return this.#readSelector;
   }
 
+  public get readSelectors(): ReadSelectors {
+    return this.#readSelectors;
+  }
+
   public get deleteSelector(): DeleteSelector {
     return this.#deleteSelector;
   }
@@ -46,6 +53,7 @@ export default class SelectorDomain {
     createSelector: CreateSelector,
     updateSelector: UpdateSelector,
     readSelector: ReadSelector,
+    readSelectors: ReadSelectors,
     deleteSelector: DeleteSelector,
     deleteSelectors: DeleteSelectors,
     createAlert: CreateAlert
@@ -53,6 +61,7 @@ export default class SelectorDomain {
     this.#createSelector = createSelector;
     this.#updateSelector = updateSelector;
     this.#readSelector = readSelector;
+    this.#readSelectors = readSelectors;
     this.#deleteSelector = deleteSelector;
     this.#deleteSelectors = deleteSelectors;
     this.#createAlert = createAlert;
