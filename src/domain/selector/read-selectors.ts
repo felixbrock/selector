@@ -54,10 +54,16 @@ export class ReadSelectors
 
   #buildSelectorQueryDto = (
     request: ReadSelectorsRequestDto
-  ): SelectorQueryDto => ({
-    content: request.content,
-    systemId: request.systemId,
-    alert: request.alert,
-    modifiedOn: request.modifiedOn
-  });
+  ): SelectorQueryDto => 
+  {
+
+    const queryDto : SelectorQueryDto = {};
+
+    if(request.content) queryDto.content = request.content;
+    if(request.systemId) queryDto.systemId = request.systemId;
+    if(request.alert && request.alert.createdOn) queryDto.alert = request.alert;
+    if(request.modifiedOn) queryDto.modifiedOn = request.modifiedOn;
+    
+    return queryDto;
+  };
 }
