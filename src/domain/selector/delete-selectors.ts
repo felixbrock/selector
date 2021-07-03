@@ -1,5 +1,5 @@
 import IUseCase from '../services/use-case';
-import SelectorDto from './selector-dto';
+import { SelectorDto } from './selector-dto';
 import Result from '../value-types/transient-types';
 import { ReadSelectors } from './read-selectors';
 import { DeleteSelector } from './delete-selector';
@@ -18,7 +18,8 @@ export class DeleteSelectors
   #readSelectors: ReadSelectors;
 
   public constructor(
-    readSelectors: ReadSelectors, deleteSelector: DeleteSelector
+    readSelectors: ReadSelectors,
+    deleteSelector: DeleteSelector
   ) {
     this.#readSelectors = readSelectors;
     this.#deleteSelector = deleteSelector;
@@ -60,7 +61,6 @@ export class DeleteSelectors
   private async deleteSelector(
     selectorDto: SelectorDto
   ): Promise<Result<null>> {
-    return this.#deleteSelector.execute({id: selectorDto.id});
+    return this.#deleteSelector.execute({ id: selectorDto.id });
   }
 }
- 

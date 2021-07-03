@@ -1,10 +1,10 @@
 import IUseCase from '../services/use-case';
 import { Selector } from '../entities';
-import SelectorDto from './selector-dto';
-import {ISelectorRepository} from './i-selector-repository';
+import { SelectorDto, buildSelectorDto } from './selector-dto';
+import { ISelectorRepository } from './i-selector-repository';
 import Result from '../value-types/transient-types';
 import { Alert } from '../value-types';
-import AlertDto from '../alert/alert-dto';
+import { AlertDto } from '../alert/alert-dto';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
 
@@ -34,27 +34,17 @@ export class UpdateSelector
       );
 
       if (!selector)
-        throw new Error(
-          `Selector with id ${request.id} does not exist`
-        );
+        throw new Error(`Selector with id ${request.id} does not exist`);
 
       const modifiedSelector = await this.#modifySelector(selector, request);
 
       await this.#selectorRepository.update(modifiedSelector);
 
-      return Result.ok<SelectorDto>(this.#buildSelectorDto(modifiedSelector));
+      return Result.ok<SelectorDto>(buildSelectorDto(modifiedSelector));
     } catch (error) {
       return Result.fail<SelectorDto>(error.message);
     }
   }
-
-  #buildSelectorDto = (selector: Selector): SelectorDto => ({
-    id: selector.id,
-    content: selector.content,
-    systemId: selector.systemId,
-    modifiedOn: selector.modifiedOn,
-    alerts: selector.alerts,
-  });
 
   #modifySelector = async (
     selector: Selector,
@@ -64,7 +54,7 @@ export class UpdateSelector
 
     if (request.content) {
       const readSelectorResult: SelectorDto[] =
-        await this.#selectorRepository.findBy({content: request.content});
+        await this.#selectorRepository.findBy({ content: request.content });
       if (readSelectorResult.length)
         throw new Error(
           `Selector ${readSelectorResult[0].content} is already registered under ${readSelectorResult[0].id}`

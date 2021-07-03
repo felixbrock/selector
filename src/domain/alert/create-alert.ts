@@ -1,10 +1,10 @@
 import Result from '../value-types/transient-types';
 import IUseCase from '../services/use-case';
 import { Alert } from '../value-types';
-import AlertDto from './alert-dto';
-import SelectorDto from '../selector/selector-dto';
+import { AlertDto, buildAlertDto } from './alert-dto';
+import { SelectorDto } from '../selector/selector-dto';
 import { UpdateSelector } from '../selector/update-selector';
-import {ISelectorRepository} from '../selector/i-selector-repository';
+import { ISelectorRepository } from '../selector/i-selector-repository';
 import { PostWarning } from '../system-api/post-warning';
 import WarningDto from '../system-api/warning-dto';
 
@@ -40,13 +40,14 @@ export class CreateAlert
     if (!alert.value) return alert;
 
     try {
-      const selectorDto: SelectorDto | null = await this.#selectorRepository.findOne(
-        request.selectorId
-      );
+      const selectorDto: SelectorDto | null =
+        await this.#selectorRepository.findOne(request.selectorId);
       if (!selectorDto)
-        throw new Error(`Selector with id ${request.selectorId} does not exist`);
+        throw new Error(
+          `Selector with id ${request.selectorId} does not exist`
+        );
 
-      const alertDto = this.#buildAlertDto(alert.value);
+      const alertDto = buildAlertDto(alert.value);
 
       const updateSelectorResult: Result<SelectorDto | null> =
         await this.#updateSelector.execute({
@@ -57,17 +58,14 @@ export class CreateAlert
       if (updateSelectorResult.error)
         throw new Error(updateSelectorResult.error);
       if (!updateSelectorResult.value)
-        throw new Error(
-          `Couldn't update selector ${request.selectorId}`
-        );
+        throw new Error(`Couldn't update selector ${request.selectorId}`);
 
-        const postWarningResult: Result<WarningDto | null> =
+      const postWarningResult: Result<WarningDto | null> =
         await this.#postWarning.execute({
-          systemId: selectorDto.systemId
+          systemId: selectorDto.systemId,
         });
 
-      if (postWarningResult.error)
-        throw new Error(postWarningResult.error);
+      if (postWarningResult.error) throw new Error(postWarningResult.error);
       if (!postWarningResult.value)
         throw new Error(
           `Couldn't create warning for system ${selectorDto.systemId}`
@@ -78,10 +76,6 @@ export class CreateAlert
       return Result.fail<AlertDto>(error.message);
     }
   }
-
-  #buildAlertDto = (alert: Alert): AlertDto => ({
-    createdOn: alert.createdOn,
-  });
 
   #createAlert = (): Result<Alert | null> => Alert.create();
 }

@@ -1,4 +1,9 @@
-export default interface AlertDto {
+import { Alert } from "../value-types";
+
+export interface AlertDto {
   createdOn: number;
-  // eslint-disable-next-line semi
-}
+};
+
+export const buildAlertDto = (alert: Alert): AlertDto => ({
+  createdOn: alert.createdOn,
+});
