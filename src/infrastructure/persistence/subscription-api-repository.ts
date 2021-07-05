@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { URLSearchParams } from 'url';
 import { ISubscriptionApiRepository } from '../../domain/subscription-api/delete-targets';
-import Result from '../../domain/value-types/transient-types';
+import Result from '../../domain/value-types/transient-types/result';
 
 const apiRoot = 'http://localhost:8080/api/v1';
 

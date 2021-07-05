@@ -1,8 +1,6 @@
 import { Router } from 'express';
-import {
-  CreateSelectorController,
-  ReadSelectorController,
-} from '../controllers';
+import CreateSelectorController from '../controllers/create-selector-controller';
+import ReadSelectorController from '../controllers/read-selector-controller';
 import app from '../../ioc-register';
 import SelectorDomain from '../../../domain/selector-domain';
 import CreateAlertController from '../controllers/create-alert-controller';

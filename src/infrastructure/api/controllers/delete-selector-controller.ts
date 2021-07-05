@@ -5,7 +5,7 @@ import {
   DeleteSelectorRequestDto,
   DeleteSelectorResponseDto,
 } from '../../../domain/selector/delete-selector';
-import { BaseController, CodeHttp } from '../../shared';
+import { BaseController, CodeHttp } from '../../shared/base-controller';
 
 export default class DeleteSelectorController extends BaseController {
   #deleteSelector: DeleteSelector;

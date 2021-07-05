@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
-import { Selector, SelectorProperties } from '../../domain/entities';
+import { Selector, SelectorProperties } from '../../domain/entities/selector';
 import {
   ISelectorRepository,
   AlertQueryDto,
   SelectorQueryDto,
 } from '../../domain/selector/i-selector-repository';
-import { Alert } from '../../domain/value-types';
-import Result from '../../domain/value-types/transient-types';
+import Alert from '../../domain/value-types/alert';
+import Result from '../../domain/value-types/transient-types/result';
 
 interface AlertPersistence {
   createdOn: number;

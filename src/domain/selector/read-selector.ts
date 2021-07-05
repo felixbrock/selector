@@ -1,8 +1,8 @@
-import Result from '../value-types/transient-types';
+import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import { ISelectorRepository } from './i-selector-repository';
 import { SelectorDto } from './selector-dto';
-import { Selector } from '../entities';
+import { Selector } from '../entities/selector';
 
 export interface ReadSelectorRequestDto {
   id: string;

@@ -5,8 +5,8 @@ import {
   ReadSelectorsRequestDto,
   ReadSelectorsResponseDto,
 } from '../../../domain/selector/read-selectors';
-import Result from '../../../domain/value-types/transient-types';
-import { BaseController, CodeHttp } from '../../shared';
+import Result from '../../../domain/value-types/transient-types/result';
+import { BaseController, CodeHttp } from '../../shared/base-controller';
 
 export default class ReadSelectorsController extends BaseController {
   #readSelectors: ReadSelectors;

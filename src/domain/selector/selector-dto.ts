@@ -1,5 +1,5 @@
 import { AlertDto, buildAlertDto } from '../alert/alert-dto';
-import { Selector } from '../entities';
+import { Selector } from '../entities/selector';
 
 export interface SelectorDto {
   id: string;

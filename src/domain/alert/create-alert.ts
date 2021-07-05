@@ -1,6 +1,6 @@
-import Result from '../value-types/transient-types';
+import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
-import { Alert } from '../value-types';
+import Alert from '../value-types/alert';
 import { AlertDto, buildAlertDto } from './alert-dto';
 import { SelectorDto } from '../selector/selector-dto';
 import { UpdateSelector } from '../selector/update-selector';

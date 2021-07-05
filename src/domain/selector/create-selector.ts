@@ -1,9 +1,9 @@
 // TODO Violation of Dependency Rule
 import { v4 as uuidv4 } from 'uuid';
-import Result from '../value-types/transient-types';
+import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
-import { Id } from '../value-types';
-import { Selector, SelectorProperties } from '../entities';
+import Id from '../value-types/id';
+import { Selector, SelectorProperties } from '../entities/selector';
 import { SelectorDto, buildSelectorDto } from './selector-dto';
 import { ISelectorRepository } from './i-selector-repository';
 

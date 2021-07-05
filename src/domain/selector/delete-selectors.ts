@@ -1,6 +1,6 @@
 import IUseCase from '../services/use-case';
 import { SelectorDto } from './selector-dto';
-import Result from '../value-types/transient-types';
+import Result from '../value-types/transient-types/result';
 import { ReadSelectors } from './read-selectors';
 import { DeleteSelector } from './delete-selector';
 

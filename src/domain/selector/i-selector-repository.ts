@@ -1,5 +1,5 @@
-import { Selector } from "../entities";
-import Result from "../value-types/transient-types";
+import { Selector } from "../entities/selector";
+import Result from "../value-types/transient-types/result";
 
 export interface SelectorQueryDto {
   systemId?: string;

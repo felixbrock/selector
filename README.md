@@ -133,4 +133,7 @@ It is considered a best practice to NEVER return null when returning a collectio
 https://stackoverflow.com/questions/1628434/null-objects-vs-empty-objects
 I tend to be dubious of code with lots of NULLs, and try to refactor them away where possible with exceptions, empty collections, Java Optionals, and so on.
 
+https://www.reddit.com/r/javascript/comments/7rv221/to_indexjs_or_not_to_indexjs/
+Index.js is not used so far for overhead reasons due to the small scope of the microservices. However, if a benefit is expected out of the use they might be added at a later point
+
 

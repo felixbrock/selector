@@ -1,9 +1,9 @@
 import IUseCase from '../services/use-case';
-import { Selector } from '../entities';
+import { Selector } from '../entities/selector';
 import { SelectorDto, buildSelectorDto } from './selector-dto';
 import { ISelectorRepository } from './i-selector-repository';
-import Result from '../value-types/transient-types';
-import { Alert } from '../value-types';
+import Result from '../value-types/transient-types/result';
+import Alert from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated

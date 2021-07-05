@@ -1,8 +1,8 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
 import { CreateAlert, CreateAlertRequestDto, CreateAlertResponseDto } from '../../../domain/alert/create-alert';
-import Result from '../../../domain/value-types/transient-types';
-import { BaseController, CodeHttp } from '../../shared';
+import Result from '../../../domain/value-types/transient-types/result';
+import { BaseController, CodeHttp } from '../../shared/base-controller';
 
 export default class CreateAlertController extends BaseController {
   #createAlert: CreateAlert;

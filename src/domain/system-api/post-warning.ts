@@ -1,5 +1,5 @@
 // TODO Should those really be use cases?
-import Result from '../value-types/transient-types';
+import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import WarningDto from './warning-dto';
 import ISystemApiRepository from './i-system-api-repository';

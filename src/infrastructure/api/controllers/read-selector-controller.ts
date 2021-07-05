@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { ReadSelector, ReadSelectorRequestDto, ReadSelectorResponseDto } from '../../../domain/selector/read-selector';
 
-import { BaseController, CodeHttp } from '../../shared';
+import { BaseController, CodeHttp } from '../../shared/base-controller';
 
 export default class ReadSelectorController extends BaseController {
   #readSelector: ReadSelector;

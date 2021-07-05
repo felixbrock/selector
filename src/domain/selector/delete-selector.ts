@@ -1,7 +1,7 @@
-import Result from '../value-types/transient-types';
+import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import {ISelectorRepository} from './i-selector-repository';
-import { Selector } from '../entities';
+import { Selector } from '../entities/selector';
 import { DeleteTargets } from '../subscription-api/delete-targets';
 
 export interface DeleteSelectorRequestDto {
