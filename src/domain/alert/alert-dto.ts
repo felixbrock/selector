@@ -1,4 +1,4 @@
-import Alert from "../value-types/alert";
+import { Alert } from "../value-types/alert";
 
 export interface AlertDto {
   createdOn: number;

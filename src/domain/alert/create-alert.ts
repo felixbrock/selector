@@ -1,6 +1,6 @@
 import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
-import Alert from '../value-types/alert';
+import { Alert } from '../value-types/alert';
 import { AlertDto, buildAlertDto } from './alert-dto';
 import { SelectorDto } from '../selector/selector-dto';
 import { UpdateSelector } from '../selector/update-selector';
@@ -77,5 +77,5 @@ export class CreateAlert
     }
   }
 
-  #createAlert = (): Result<Alert | null> => Alert.create();
+  #createAlert = (): Result<Alert | null> => Alert.create({});
 }

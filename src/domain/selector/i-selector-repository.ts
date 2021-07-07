@@ -16,7 +16,7 @@ export interface AlertQueryDto {
 export interface ISelectorRepository {
   findOne(id: string): Promise<Selector | null>;
   findBy(
-    subscriptionQueryDto: SelectorQueryDto
+    selectorQueryDto: SelectorQueryDto
   ): Promise<Selector[]>;
   all(): Promise<Selector[]>;
   update(selector: Selector): Promise<Result<null>>;

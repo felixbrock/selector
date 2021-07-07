@@ -3,7 +3,7 @@ import { Selector } from '../entities/selector';
 import { SelectorDto, buildSelectorDto } from './selector-dto';
 import { ISelectorRepository } from './i-selector-repository';
 import Result from '../value-types/transient-types/result';
-import Alert from '../value-types/alert';
+import { Alert } from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
@@ -64,7 +64,7 @@ export class UpdateSelector
     }
 
     if (request.alert) {
-      const alertResult = Alert.create();
+      const alertResult = Alert.create({});
       // TODO No uniform usage of Result.value Result.error and result.success. Fix.
       if (alertResult.error) throw new Error(alertResult.error);
       if (!alertResult.value)

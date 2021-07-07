@@ -6,7 +6,7 @@ import {
   AlertQueryDto,
   SelectorQueryDto,
 } from '../../domain/selector/i-selector-repository';
-import Alert from '../../domain/value-types/alert';
+import { Alert } from '../../domain/value-types/alert';
 import Result from '../../domain/value-types/transient-types/result';
 
 interface AlertPersistence {
@@ -199,10 +199,10 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,
     alerts: selector.alerts.map((alert) => {
-      const alertResult = Alert.create();
+      const alertResult = Alert.create({ createdOn: alert.createdOn });
       if (alertResult.value) return alertResult.value;
       throw new Error(
-        alertResult.error || `Creation of selector alert ${alert} failed`
+        alertResult.error || `Creation of selector alert failed`
       );
     }),
   });

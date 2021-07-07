@@ -1,18 +1,22 @@
 import Result from './transient-types/result';
 
-export default class Alert {
+export interface AlertProperties {
+  createdOn?: number;
+}
+
+export class Alert {
   #createdOn: number;
 
   public get createdOn(): number {
     return this.#createdOn;
   }
 
-  private constructor() {
-    this.#createdOn = Date.now();
+  private constructor(properties: AlertProperties) {
+    this.#createdOn = properties.createdOn || Date.now();
   }
 
-  public static create(): Result<Alert | null> {
-    const alert = new Alert();
+  public static create(properties: AlertProperties): Result<Alert | null> {
+    const alert = new Alert(properties);
     return Result.ok<Alert>(alert);
   }
 }

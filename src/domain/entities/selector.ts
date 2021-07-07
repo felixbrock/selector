@@ -1,4 +1,4 @@
-import Alert from '../value-types/alert';
+import { Alert } from '../value-types/alert';
 import Result from '../value-types/transient-types/result';
 
 export interface SelectorProperties {
