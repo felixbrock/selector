@@ -5,11 +5,13 @@ export interface SelectorQueryDto {
   systemId?: string;
   content?: string;
   alert?: AlertQueryDto;
-  modifiedOn?: number;
+  modifiedOnStart?: number;
+  modifiedOnEnd?: number;
 }
 
 export interface AlertQueryDto {
-  createdOn?: number;
+  createdOnStart?: number;
+  createdOnEnd?: number;
 }
 
 

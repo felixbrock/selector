@@ -47,9 +47,6 @@ export class Selector {
   }
 
   public set modifiedOn(modifiedOn: number) {
-    if (!Selector.timestampIsValid(modifiedOn))
-      throw new Error('ModifiedOn value lies in the past');
-
     this.#modifiedOn = modifiedOn;
   }
 
@@ -58,7 +55,7 @@ export class Selector {
     this.#content = properties.content;
     this.#systemId = properties.systemId;
     this.#alerts = properties.alerts || [];
-    this.#modifiedOn = Date.now();
+    this.#modifiedOn = properties.modifiedOn || Date.now();
   }
 
   public static create(
@@ -73,12 +70,6 @@ export class Selector {
     const selector = new Selector(properties);
     return Result.ok<Selector>(selector);
   }
-
-  public static timestampIsValid = (timestamp: number): boolean => {
-    const minute = 60 * 1000;
-    if (timestamp && timestamp < Date.now() - minute) return false;
-    return true;
-  };
 
   public addAlert(alert: Alert): void {
     this.#alerts.push(alert);

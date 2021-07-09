@@ -52,7 +52,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
         this.findByCallback(selectorEntity, selectorQueryDto)
     );
 
-    if (!selectors || !!selectors.length) return [];
+    if (!selectors || !selectors.length) return [];
     return selectors.map((selector: SelectorPersistence) =>
       this.#toEntity(this.#buildProperties(selector))
     );
@@ -69,23 +69,33 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     const systemIdMatch = selectorQueryDto.systemId
       ? selectorEntity.systemId === selectorQueryDto.systemId
       : true;
-    const modifiedOnMatch = selectorQueryDto.modifiedOn
-      ? selectorEntity.modifiedOn === selectorQueryDto.modifiedOn
+      const modifiedOnStartMatch = selectorQueryDto.modifiedOnStart
+      ? selectorEntity.modifiedOn >= selectorQueryDto.modifiedOnStart
+      : true;
+      const modifiedOnEndMatch = selectorQueryDto.modifiedOnEnd
+      ? selectorEntity.modifiedOn <= selectorQueryDto.modifiedOnEnd
       : true;
 
     let alertMatch: boolean;
     if (selectorQueryDto.alert === true) {
       const queryTarget: AlertQueryDto = selectorQueryDto.alert;
       const result: AlertPersistence | undefined = selectorEntity.alerts.find(
-        (alert: AlertPersistence) =>
-          queryTarget.createdOn
-            ? alert.createdOn === queryTarget.createdOn
-            : true
+        (alert: AlertPersistence) => {
+          const createdOnStartMatch = queryTarget.createdOnStart
+          ? alert.createdOn >= queryTarget.createdOnStart
+          : true;
+          const createdOnEndMatch = queryTarget.createdOnEnd
+          ? alert.createdOn <= queryTarget.createdOnEnd
+          : true;
+
+          return createdOnStartMatch && createdOnEndMatch;
+        }
+          
       );
       alertMatch = !!result;
     } else alertMatch = true;
 
-    return contentMatch && systemIdMatch && modifiedOnMatch && alertMatch;
+    return contentMatch && systemIdMatch && modifiedOnStartMatch && modifiedOnEndMatch && alertMatch;
   }
 
   public async all(): Promise<Selector[]> {
@@ -97,7 +107,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
     const { selectors } = db;
 
-    if (!selectors || selectors.length === 0) return [];
+    if (!selectors || !selectors.length) return [];
     return selectors.map((selector: SelectorPersistence) =>
       this.#toEntity(this.#buildProperties(selector))
     );

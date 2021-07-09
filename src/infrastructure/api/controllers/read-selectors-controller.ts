@@ -19,38 +19,73 @@ export default class ReadSelectorsController extends BaseController {
   #buildRequestDto = (
     httpRequest: Request
   ): Result<ReadSelectorsRequestDto> => {
-    const { systemId, content, alertCreatedOn, modifiedOn } = httpRequest.query;
+    const {
+      systemId,
+      content,
+      alertCreatedOnStart,
+      alertCreatedOnEnd,
+      modifiedOnStart,
+      modifiedOnEnd,
+      timezoneOffset,
+    } = httpRequest.query;
 
     const requestValid = this.#queryParametersValid([
       systemId,
       content,
-      alertCreatedOn,
-      modifiedOn,
+      alertCreatedOnStart,
+      alertCreatedOnEnd,
+      modifiedOnStart,
+      modifiedOnEnd,
     ]);
     if (!requestValid)
-      return Result.fail<ReadSelectorsRequestDto>(
+      throw new Error(
         'Request query parameter are supposed to be in string format'
+      );
+
+    const startTime = '00:00:00';
+    const endTime = '23:59:59';
+
+    if (
+      typeof timezoneOffset === 'string' &&
+      timezoneOffset.indexOf('-') === -1 &&
+      timezoneOffset.indexOf('+') === -1
+    )
+      throw new Error(
+        `TimezoneOffset is not in correct format. '-' or '+' missing. Make sure to use URL encoding ('-'; '%2B' for '+' character)`
       );
 
     try {
       return Result.ok<ReadSelectorsRequestDto>({
-        content:
-        typeof content === 'string' ? content : undefined,
-        systemId:
-          typeof systemId === 'string' ? systemId : undefined,
+        content: typeof content === 'string' ? content : undefined,
+        systemId: typeof systemId === 'string' ? systemId : undefined,
         alert: {
-          createdOn:
-            typeof alertCreatedOn === 'string' ? parseInt(alertCreatedOn, 10) : undefined,
+          createdOnStart:
+            typeof alertCreatedOnStart === 'string'
+              ? Date.parse(
+                  `${alertCreatedOnStart} ${startTime} ${timezoneOffset || ''}`
+                )
+              : undefined,
+          createdOnEnd:
+            typeof alertCreatedOnEnd === 'string'
+              ? Date.parse(
+                  `${alertCreatedOnEnd} ${endTime} ${timezoneOffset || ''}`
+                )
+              : undefined,
         },
-        modifiedOn:
-          typeof modifiedOn === 'string' ? parseInt(modifiedOn, 10) : undefined,
+        modifiedOnStart:
+          typeof modifiedOnStart === 'string'
+            ? Date.parse(
+                `${modifiedOnStart} ${startTime} ${timezoneOffset || ''}`
+              )
+            : undefined,
+        modifiedOnEnd:
+          typeof modifiedOnEnd === 'string'
+            ? Date.parse(`${modifiedOnEnd} ${endTime} ${timezoneOffset || ''}`)
+            : undefined,
       });
-      
     } catch (error) {
       return Result.fail<ReadSelectorsRequestDto>(error.message);
     }
-
-    
   };
 
   #queryParametersValid = (parameters: unknown[]): boolean => {

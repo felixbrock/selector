@@ -1,14 +1,15 @@
 import { Selector } from '../entities/selector';
 import IUseCase from '../services/use-case';
 import Result from '../value-types/transient-types/result';
-import {ISelectorRepository, SelectorQueryDto } from './i-selector-repository';
-import {SelectorDto, buildSelectorDto } from './selector-dto';
+import { ISelectorRepository, SelectorQueryDto } from './i-selector-repository';
+import { SelectorDto, buildSelectorDto } from './selector-dto';
 
 export interface ReadSelectorsRequestDto {
   systemId?: string;
   content?: string;
-  alert?: { createdOn?: number };
-  modifiedOn?: number;
+  alert?: { createdOnStart?: number; createdOnEnd?: number };
+  modifiedOnStart?: number;
+  modifiedOnEnd?: number;
 }
 
 export type ReadSelectorsResponseDto = Result<SelectorDto[] | null>;
@@ -22,10 +23,14 @@ export class ReadSelectors
     this.#selectorRepository = selectorRepository;
   }
 
-  public async execute(request: ReadSelectorsRequestDto): Promise<ReadSelectorsResponseDto> {
+  public async execute(
+    request: ReadSelectorsRequestDto
+  ): Promise<ReadSelectorsResponseDto> {
     try {
       const selectors: Selector[] | null =
-        await this.#selectorRepository.findBy(this.#buildSelectorQueryDto(request));
+        await this.#selectorRepository.findBy(
+          this.#buildSelectorQueryDto(request)
+        );
       if (!selectors) throw new Error(`Queried selectors do not exist`);
 
       return Result.ok<SelectorDto[]>(
@@ -36,20 +41,18 @@ export class ReadSelectors
     }
   }
 
-
-
   #buildSelectorQueryDto = (
     request: ReadSelectorsRequestDto
-  ): SelectorQueryDto => 
-  {
+  ): SelectorQueryDto => {
+    const queryDto: SelectorQueryDto = {};
 
-    const queryDto : SelectorQueryDto = {};
+    if (request.content) queryDto.content = request.content;
+    if (request.systemId) queryDto.systemId = request.systemId;
+    if (request.alert && (request.alert.createdOnStart || request.alert.createdOnEnd))
+      queryDto.alert = request.alert;
+    if (request.modifiedOnStart) queryDto.modifiedOnStart = request.modifiedOnStart;
+    if (request.modifiedOnEnd) queryDto.modifiedOnEnd = request.modifiedOnEnd;
 
-    if(request.content) queryDto.content = request.content;
-    if(request.systemId) queryDto.systemId = request.systemId;
-    if(request.alert && request.alert.createdOn) queryDto.alert = request.alert;
-    if(request.modifiedOn) queryDto.modifiedOn = request.modifiedOn;
-    
     return queryDto;
   };
 }
