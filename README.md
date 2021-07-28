@@ -136,4 +136,8 @@ I tend to be dubious of code with lots of NULLs, and try to refactor them away w
 https://www.reddit.com/r/javascript/comments/7rv221/to_indexjs_or_not_to_indexjs/
 Index.js is not used so far for overhead reasons due to the small scope of the microservices. However, if a benefit is expected out of the use they might be added at a later point
 
+Terminology for providing and consuming api endpoints:
+providing: resources (documents, classes, functions, declarations...) related to a specific endpoint should use the create, read, update, delete terms
+consuming: resources (documents, classes, functions, declarations...) consuming specific endpoint should use the http method term used by the endpoint (get, post...)
+
 
