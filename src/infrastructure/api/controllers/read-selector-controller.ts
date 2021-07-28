@@ -25,7 +25,7 @@ export default class ReadSelectorController extends BaseController {
       if (useCaseResult.error) {
         return ReadSelectorController.badRequest(res, useCaseResult.error);
       }
-
+      
       return ReadSelectorController.ok(
         res,
         useCaseResult.value,

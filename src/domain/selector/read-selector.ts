@@ -1,7 +1,7 @@
 import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import { ISelectorRepository } from './i-selector-repository';
-import { SelectorDto } from './selector-dto';
+import { buildSelectorDto, SelectorDto } from './selector-dto';
 import { Selector } from '../entities/selector';
 
 export interface ReadSelectorRequestDto {
@@ -29,7 +29,7 @@ export class ReadSelector
       if (!selector)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
-      return Result.ok<SelectorDto>(selector);
+      return Result.ok<SelectorDto>(buildSelectorDto(selector));
     } catch (error) {
       return Result.fail<SelectorDto>(error.message);
     }
