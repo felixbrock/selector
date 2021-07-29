@@ -1,3 +1,4 @@
+import { URLSearchParams } from 'url';
 import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 
@@ -6,7 +7,7 @@ export interface DeleteTargetsRequestDto {
 }
 
 export interface ISubscriptionApiRepository {
-  deleteTargets(selectorId: string): Promise<Result<null>>;
+  deleteTargets(params: URLSearchParams): Promise<Result<null>>;
 }
 
 export type DeleteTargetsResponseDto = Result<null>;
@@ -25,7 +26,7 @@ export class DeleteTargets
   ): Promise<DeleteTargetsResponseDto> {
     try {
       const selectorResult: Result<null> = await this.#subscriptionApiRepository.deleteTargets(
-        request.selectorId
+        new URLSearchParams({selectorId: request.selectorId})
       );
       if (!selectorResult)
         throw new Error(`No targets for selector ${request.selectorId} exist`);

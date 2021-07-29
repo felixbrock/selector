@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 import ISystemApiRepository from '../../domain/system-api/i-system-api-repository';
 import SystemDto from '../../domain/system-api/system-dto';
 import WarningDto from '../../domain/system-api/warning-dto';
@@ -6,14 +6,15 @@ import WarningDto from '../../domain/system-api/warning-dto';
 const apiRoot = 'http://localhost:3002/api/v1';
 
 export default class SystemApiRepositoryImpl implements ISystemApiRepository {
-  public getOne = async (systemId: string): Promise<SystemDto | null> => {
+  
+  public getOne = async (
+    systemId: string
+  ): Promise<SystemDto | null> => {
     try {
-      const response = await fetch(`${apiRoot}/system/${systemId}`);
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        return jsonResponse;
-      }
-      return null;
+      const response = await axios.get(`${apiRoot}/system/${systemId}`);
+      const jsonResponse = await response.data;
+      if (response.status === 200) return jsonResponse;
+      throw new Error(jsonResponse);
     } catch (error) {
       return null;
     }
@@ -21,12 +22,10 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
 
   public postWarning = async (systemId: string): Promise<WarningDto | null> => {
     try {
-      const response = await fetch(`${apiRoot}/system/${systemId}/warning`, {method: 'POST'});
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        return jsonResponse;
-      }
-      return null;
+      const response = await axios.post(`${apiRoot}/system/${systemId}/warning`);
+      const jsonResponse = await response.data;
+      if (response.status === 201) return jsonResponse;
+      throw new Error(jsonResponse);
     } catch (error) {
       return null;
     }

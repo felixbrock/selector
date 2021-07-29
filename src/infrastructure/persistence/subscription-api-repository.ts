@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 import { URLSearchParams } from 'url';
 import { ISubscriptionApiRepository } from '../../domain/subscription-api/delete-targets';
 import Result from '../../domain/value-types/transient-types/result';
@@ -6,22 +6,14 @@ import Result from '../../domain/value-types/transient-types/result';
 const apiRoot = 'http://localhost:8080/api/v1';
 
 export default class SubscriptionApiRepositoryImpl implements ISubscriptionApiRepository {
-  public deleteTargets = async (selectorId: string): Promise<Result<null>> => {
+  public deleteTargets = async (params: URLSearchParams): Promise<Result<null>> => {
     try {
-      const params = new URLSearchParams();
-      params.append('selectorId', selectorId);
-
-      await fetch(`${apiRoot}/subscriptions/targets`, {
-        method: 'DELETE',
-        body: params,
-      });
-      // if (response.ok) {
-      //   const jsonResponse = await response.json();
-      //   return jsonResponse;
-      // }
-      return Result.ok<null>();
+      const response = await axios.delete(`${apiRoot}/subscriptions/targets`, {params});
+      const jsonResponse = await response.data;
+      if (response.status === 200) return Result.ok<null>();
+      throw new Error(jsonResponse);
     } catch (error) {
-      return Result.fail<null>(error.message);
+      return Result.fail<null>(error.message);;
     }
   };
 }
