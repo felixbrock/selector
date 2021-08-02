@@ -140,4 +140,7 @@ Terminology for providing and consuming api endpoints:
 providing: resources (documents, classes, functions, declarations...) related to a specific endpoint should use the create, read, update, delete terms
 consuming: resources (documents, classes, functions, declarations...) consuming specific endpoint should use the http method term used by the endpoint (get, post...)
 
+Do not expose business logic to client. Be careful what errors to return when error handling
+https://itnext.io/graceful-error-handling-in-rest-driven-web-applications-d4209b4937aa
+
 

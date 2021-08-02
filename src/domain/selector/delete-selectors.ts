@@ -31,19 +31,16 @@ export class DeleteSelectors
     try {
       // read Selectors
       const readSelectorsResult: Result<SelectorDto[] | null> =
-        await this.#readSelectors.execute({});
+        await this.#readSelectors.execute({ systemId: request.systemId });
 
       if (readSelectorsResult.error) throw new Error(readSelectorsResult.error);
       if (!readSelectorsResult.value)
         throw new Error(`Couldn't read selectors`);
 
       const deletionResults = await Promise.all(
-        readSelectorsResult.value.map(async (selector) => {
-          if (selector.systemId !== request.systemId)
-            return this.deleteSelector(selector);
-
-          return Result.ok<null>();
-        })
+        readSelectorsResult.value.map(async (selectorDto) =>
+        this.#deleteSelector.execute({ id: selectorDto.id })
+        )
       );
 
       const failed = deletionResults.find((result) => result.error);
@@ -56,11 +53,5 @@ export class DeleteSelectors
     } catch (error) {
       return Result.fail<null>(error.message);
     }
-  }
-
-  private async deleteSelector(
-    selectorDto: SelectorDto
-  ): Promise<Result<null>> {
-    return this.#deleteSelector.execute({ id: selectorDto.id });
   }
 }

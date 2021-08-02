@@ -63,6 +63,7 @@ export class CreateAlert
       const postWarningResult: Result<WarningDto | null> =
         await this.#postWarning.execute({
           systemId: selectorDto.systemId,
+          selectorId: selectorDto.id
         });
 
       if (postWarningResult.error) throw new Error(postWarningResult.error);

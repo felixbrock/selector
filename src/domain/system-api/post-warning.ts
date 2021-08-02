@@ -6,6 +6,7 @@ import ISystemApiRepository from './i-system-api-repository';
 
 export interface PostWarningRequestDto {
   systemId: string;
+  selectorId: string;
 }
 
 export type PostWarningResponseDto = Result<WarningDto | null>;
@@ -23,7 +24,7 @@ export class PostWarning
     request: PostWarningRequestDto
   ): Promise<PostWarningResponseDto> {
     try {
-      const warningDto = await this.#systemApiRepository.postWarning(request.systemId);
+      const warningDto = await this.#systemApiRepository.postWarning(request.systemId, request.selectorId);
 
       if (!warningDto)
         throw new Error(`Creation of warning for ${request.systemId} failed`);

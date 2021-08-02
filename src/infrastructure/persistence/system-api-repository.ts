@@ -12,7 +12,7 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
   ): Promise<SystemDto | null> => {
     try {
       const response = await axios.get(`${apiRoot}/system/${systemId}`);
-      const jsonResponse = await response.data;
+      const jsonResponse = response.data;
       if (response.status === 200) return jsonResponse;
       throw new Error(jsonResponse);
     } catch (error) {
@@ -20,10 +20,10 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
     }
   };
 
-  public postWarning = async (systemId: string): Promise<WarningDto | null> => {
+  public postWarning = async (systemId: string, selectorId: string): Promise<WarningDto | null> => {
     try {
-      const response = await axios.post(`${apiRoot}/system/${systemId}/warning`);
-      const jsonResponse = await response.data;
+      const response = await axios.post(`${apiRoot}/system/${systemId}/warning`, {selectorId});
+      const jsonResponse = response.data;
       if (response.status === 201) return jsonResponse;
       throw new Error(jsonResponse);
     } catch (error) {

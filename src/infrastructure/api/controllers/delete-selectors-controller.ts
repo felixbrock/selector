@@ -49,7 +49,11 @@ export default class DeleteSelectorsController extends BaseController {
         return DeleteSelectorsController.badRequest(res, useCaseResult.error);
       }
 
-      return DeleteSelectorsController.ok(res, useCaseResult.value, CodeHttp.OK);
+      return DeleteSelectorsController.ok(
+        res,
+        useCaseResult.value,
+        CodeHttp.OK
+      );
     } catch (error) {
       return DeleteSelectorsController.fail(res, error);
     }
