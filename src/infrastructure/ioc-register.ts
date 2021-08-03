@@ -10,8 +10,8 @@ import { UpdateSelector } from '../domain/selector/update-selector';
 import SystemApiRepository from './persistence/system-api-repository';
 import { PostWarning } from '../domain/system-api/post-warning';
 import { DeleteSelector } from '../domain/selector/delete-selector';
-import { DeleteTargets } from '../domain/subscription-api/delete-targets';
-import SubscriptionApiRepository from './persistence/subscription-api-repository';
+import { DeleteSubscriptions } from '../domain/automation-api/delete-subscriptions';
+import AutomationApiRepository from './persistence/automation-api-repository';
 import { ReadSelectors } from '../domain/selector/read-selectors';
 import { DeleteSelectors } from '../domain/selector/delete-selectors';
 
@@ -29,14 +29,14 @@ iocRegister.register({
 
   createAlert: asClass(CreateAlert),
 
-  deleteTargets: asClass(DeleteTargets),
+  deleteSubscriptions: asClass(DeleteSubscriptions),
 
   getSystem: asClass(GetSystem),
   postWarning: asClass(PostWarning),
 
   selectorRepository: asClass(SelectorRepository),
 
-  subscriptionApiRepository: asClass(SubscriptionApiRepository),
+  automationApiRepository: asClass(AutomationApiRepository),
   systemApiRepository: asClass(SystemApiRepository),
 });
 

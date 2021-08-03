@@ -78,14 +78,14 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
     let alertMatch: boolean;
     if (selectorQueryDto.alert === true) {
-      const queryTarget: AlertQueryDto = selectorQueryDto.alert;
+      const querySubscription: AlertQueryDto = selectorQueryDto.alert;
       const result: AlertPersistence | undefined = selectorEntity.alerts.find(
         (alert: AlertPersistence) => {
-          const createdOnStartMatch = queryTarget.createdOnStart
-          ? alert.createdOn >= queryTarget.createdOnStart
+          const createdOnStartMatch = querySubscription.createdOnStart
+          ? alert.createdOn >= querySubscription.createdOnStart
           : true;
-          const createdOnEndMatch = queryTarget.createdOnEnd
-          ? alert.createdOn <= queryTarget.createdOnEnd
+          const createdOnEndMatch = querySubscription.createdOnEnd
+          ? alert.createdOn <= querySubscription.createdOnEnd
           : true;
 
           return createdOnStartMatch && createdOnEndMatch;

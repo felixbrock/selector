@@ -93,7 +93,7 @@ https://blog.risingstack.com/dependency-injection-in-node-js/
 https://medium.com/@Jeffijoe/dependency-injection-in-node-js-2016-edition-f2a88efdd427
 
 
-Use-case specific Dtos should only be used in the particular use-case (CRUD) context. ReadSubscription shouldn't use CreateSubsriptionDto. However, CreateSubscription might use ReadSubscriptionDto if a subscription is read from the db during the CreateSubscription use-case.
+Use-case specific Dtos should only be used in the particular use-case (CRUD) context. ReadAutomation shouldn't use CreateSubsriptionDto. However, CreateAutomation might use ReadAutomationDto if a automation is read from the db during the CreateAutomation use-case.
 
 
 Be aware of the differences between entities and value-types
@@ -121,7 +121,7 @@ https://softwareengineering.stackexchange.com/questions/191596/is-it-ok-to-parti
 Say, you want to update a single product, you make a PUT to /products/{id}. If you want to partially update a single product (not updating every field), you could also use a PATCH to /products/{id}. The same goes for deletion of a single entity (DELETE to /products/{id}).
 
 https://stackoverflow.com/questions/6845772/rest-uri-convention-singular-or-plural-name-of-resource-while-creating-it
-Use singular when accessing a single resource e.g. subscription/1213445 and plural when acessing multiple resouces e.g. subscriptions
+Use singular when accessing a single resource e.g. automation/1213445 and plural when acessing multiple resouces e.g. automations
 
 https://stackoverflow.com/questions/37980559/is-it-better-to-return-undefined-or-null-from-a-javascript-function
 "there is no such object" is represented using null.

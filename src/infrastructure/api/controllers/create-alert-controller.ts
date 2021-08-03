@@ -21,7 +21,7 @@ export default class CreateAlertController extends BaseController {
         selectorId,
       });
     return Result.fail<CreateAlertRequestDto>(
-      'request query parameter subscriptionId is supposed to be in string format'
+      'request query parameter automationId is supposed to be in string format'
     );
   };
 

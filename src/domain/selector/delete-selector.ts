@@ -2,7 +2,7 @@ import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import {ISelectorRepository} from './i-selector-repository';
 import { Selector } from '../entities/selector';
-import { DeleteTargets } from '../subscription-api/delete-targets';
+import { DeleteSubscriptions } from '../automation-api/delete-subscriptions';
 
 export interface DeleteSelectorRequestDto {
   id: string;
@@ -15,14 +15,14 @@ export class DeleteSelector
 {
   #selectorRepository: ISelectorRepository;
 
-  #deleteTargets: DeleteTargets;
+  #deleteSubscriptions: DeleteSubscriptions;
 
   public constructor(
     selectorRepository: ISelectorRepository,
-    deleteTargets: DeleteTargets
+    deleteSubscriptions: DeleteSubscriptions
   ) {
     this.#selectorRepository = selectorRepository;
-    this.#deleteTargets = deleteTargets;
+    this.#deleteSubscriptions = deleteSubscriptions;
   }
 
   public async execute(
@@ -35,10 +35,10 @@ export class DeleteSelector
       if (!selector)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
-      const deleteTargetsResult: Result<null> =
-        await this.#deleteTargets.execute({ selectorId: request.id });
+      const deleteSubscriptionsResult: Result<null> =
+        await this.#deleteSubscriptions.execute({ selectorId: request.id });
 
-      if (deleteTargetsResult.error) throw new Error(deleteTargetsResult.error);
+      if (deleteSubscriptionsResult.error) throw new Error(deleteSubscriptionsResult.error);
 
       const deleteSelectorResult: Result<null> =
         await this.#selectorRepository.delete(request.id);
