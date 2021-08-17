@@ -9,7 +9,7 @@ export interface SelectorQueryDto {
   modifiedOnEnd?: number;
 }
 
-export interface AlertQueryDto {
+interface AlertQueryDto {
   createdOnStart?: number;
   createdOnEnd?: number;
 }

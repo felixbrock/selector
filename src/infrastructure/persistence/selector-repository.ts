@@ -1,20 +1,19 @@
-import fs from 'fs';
-import path from 'path';
+import { DeleteResult, Document, FindCursor, InsertOneResult, ObjectId, UpdateResult } from 'mongodb';
 import { Selector, SelectorProperties } from '../../domain/entities/selector';
 import {
   ISelectorRepository,
-  AlertQueryDto,
   SelectorQueryDto,
 } from '../../domain/selector/i-selector-repository';
 import { Alert } from '../../domain/value-types/alert';
 import Result from '../../domain/value-types/transient-types/result';
+import { connect, close } from './db/mongo-db';
 
 interface AlertPersistence {
   createdOn: number;
 }
 
 interface SelectorPersistence {
-  id: string;
+  _id: string;
   content: string;
   systemId: string;
   alerts: AlertPersistence[];
@@ -22,170 +21,131 @@ interface SelectorPersistence {
   // eslint-disable-next-line semi
 }
 
-export default class SelectorRepositoryImpl implements ISelectorRepository {
-  public async findOne(id: string): Promise<Selector | null> {
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
+const collectionName = 'selectors';
 
-    const result: SelectorPersistence = db.selectors.find(
-      (selectorEntity: { id: string }) => selectorEntity.id === id
-    );
+// TODO - Should Result object should be returned or not?
+
+export default class SelectorRepositoryImpl implements ISelectorRepository {
+  public findOne = async (id: string): Promise<Selector | null> => {
+    const db = await connect();
+    const result: any = await db
+      .collection(collectionName)
+      .findOne({ _id: new ObjectId(id) });
+
+    close();
 
     if (!result) return null;
+
     return this.#toEntity(this.#buildProperties(result));
   }
 
-  public async findBy(selectorQueryDto: SelectorQueryDto): Promise<Selector[]> {
+  public findBy= async (selectorQueryDto: SelectorQueryDto): Promise<Selector[]> => {
     if (!Object.keys(selectorQueryDto).length) return this.all();
 
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
+    const db = await connect();
+    const result: FindCursor = await db
+      .collection(collectionName)
+      .find(this.#buildFilter(selectorQueryDto));
+    const results = await result.toArray();
 
-    const selectors: SelectorPersistence[] = db.selectors.filter(
-      (selectorEntity: SelectorPersistence) =>
-        this.findByCallback(selectorEntity, selectorQueryDto)
-    );
+    close();
 
-    if (!selectors || !selectors.length) return [];
-    return selectors.map((selector: SelectorPersistence) =>
-      this.#toEntity(this.#buildProperties(selector))
+    if (!results || !results.length) return [];
+
+    return results.map((element: any) =>
+      this.#toEntity(this.#buildProperties(element))
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  private findByCallback(
-    selectorEntity: SelectorPersistence,
-    selectorQueryDto: SelectorQueryDto
-  ): boolean {
-    const contentMatch = selectorQueryDto.content
-      ? selectorEntity.content === selectorQueryDto.content
-      : true;
-    const systemIdMatch = selectorQueryDto.systemId
-      ? selectorEntity.systemId === selectorQueryDto.systemId
-      : true;
-      const modifiedOnStartMatch = selectorQueryDto.modifiedOnStart
-      ? selectorEntity.modifiedOn >= selectorQueryDto.modifiedOnStart
-      : true;
-      const modifiedOnEndMatch = selectorQueryDto.modifiedOnEnd
-      ? selectorEntity.modifiedOn <= selectorQueryDto.modifiedOnEnd
-      : true;
+  #buildFilter = (selectorQueryDto: SelectorQueryDto): any => {
+    const filter: { [key: string]: any } = {};
 
-    let alertMatch: boolean;
-    if (selectorQueryDto.alert === true) {
-      const querySubscription: AlertQueryDto = selectorQueryDto.alert;
-      const result: AlertPersistence | undefined = selectorEntity.alerts.find(
-        (alert: AlertPersistence) => {
-          const createdOnStartMatch = querySubscription.createdOnStart
-          ? alert.createdOn >= querySubscription.createdOnStart
-          : true;
-          const createdOnEndMatch = querySubscription.createdOnEnd
-          ? alert.createdOn <= querySubscription.createdOnEnd
-          : true;
+    if (selectorQueryDto.content) filter.content = selectorQueryDto.content;
+    if (selectorQueryDto.systemId) filter.systemId = selectorQueryDto.systemId;
 
-          return createdOnStartMatch && createdOnEndMatch;
-        }
-          
-      );
-      alertMatch = !!result;
-    } else alertMatch = true;
+    const modifiedOnFilter: { [key: string]: number } = {};
+    if (selectorQueryDto.modifiedOnStart)
+      modifiedOnFilter.$gte = selectorQueryDto.modifiedOnStart;
+    if (selectorQueryDto.modifiedOnEnd)
+      modifiedOnFilter.$lte = selectorQueryDto.modifiedOnEnd;
+    if (Object.keys(modifiedOnFilter).length)
+      filter.modifiedOn = modifiedOnFilter;
 
-    return contentMatch && systemIdMatch && modifiedOnStartMatch && modifiedOnEndMatch && alertMatch;
-  }
+    if (!selectorQueryDto.alert || !Object.keys(selectorQueryDto.alert).length)
+      return filter;
 
-  public async all(): Promise<Selector[]> {
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
+    const alertCreatedOnFilter: { [key: string]: number } = {};
+    if (selectorQueryDto.alert.createdOnStart)
+      alertCreatedOnFilter.$gte = selectorQueryDto.alert.createdOnStart;
+    if (selectorQueryDto.alert.createdOnEnd)
+      alertCreatedOnFilter.$lte = selectorQueryDto.alert.createdOnEnd;
+    if (Object.keys(alertCreatedOnFilter).length)
+      filter['alerts.createdOn'] = alertCreatedOnFilter;
 
-    const { selectors } = db;
+    return filter;
+  };
 
-    if (!selectors || !selectors.length) return [];
-    return selectors.map((selector: SelectorPersistence) =>
-      this.#toEntity(this.#buildProperties(selector))
+  public all = async (): Promise<Selector[]> => {
+    const db = await connect();
+    const result: FindCursor = await db
+      .collection(collectionName)
+      .find();
+    const results = await result.toArray();
+
+    close();
+
+    if (!results || !results.length) return [];
+
+    return results.map((element: any) =>
+      this.#toEntity(this.#buildProperties(element))
     );
   }
 
-  public async save(selector: Selector): Promise<Result<null>> {
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
-
+  public save = async (selector: Selector): Promise<Result<null>> => {
     try {
-      db.selectors.push(this.#toPersistence(selector));
-
-      fs.writeFileSync(
-        path.resolve(__dirname, '../../../db.json'),
-        JSON.stringify(db),
-        'utf-8'
-      );
-
+      const db = await connect();
+      const result: InsertOneResult<Document> = await db
+        .collection(collectionName)
+        .insertOne(this.#toPersistence(selector));
+      
+      if(!result.acknowledged) throw new Error('Selector creation failed. Insert not acknowledged');
+  
+      close();
+      
       return Result.ok<null>();
     } catch (error) {
       return Result.fail<null>(error.message);
     }
   }
 
-  public async update(selector: Selector): Promise<Result<null>> {
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
-
+  public update = async (selector: Selector): Promise<Result<null>> => {
     try {
-      for (let i = 0; i < db.selectors.length; i += 1) {
-        if (db.selectors[i].id === selector.id) {
-          db.selectors[i] = this.#toPersistence(selector);
-          break;
-        }
-      }
+      const db = await connect();
+      const result: Document | UpdateResult = await db
+        .collection(collectionName)
+        .updateOne({ _id: new ObjectId(selector.id) }, this.#toPersistence(selector));
 
-      fs.writeFileSync(
-        path.resolve(__dirname, '../../../db.json'),
-        JSON.stringify(db),
-        'utf-8'
-      );
-
+      if(!result.acknowledged) throw new Error('Selector update failed. Update not acknowledged');
+  
+      close();
+      
       return Result.ok<null>();
     } catch (error) {
       return Result.fail<null>(error.message);
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public async delete(id: string): Promise<Result<null>> {
-    const data: string = fs.readFileSync(
-      path.resolve(__dirname, '../../../db.json'),
-      'utf-8'
-    );
-    const db = JSON.parse(data);
-
+  public delete = async (id: string): Promise<Result<null>> => {
     try {
-      const selectors: SelectorPersistence[] = db.selectors.filter(
-        (selectorEntity: { id: string }) => selectorEntity.id !== id
-      );
+      const db = await connect();
+      const result: DeleteResult = await db
+        .collection(collectionName)
+        .deleteOne({ _id: new ObjectId(id) });
 
-      if (selectors.length === db.selectors.length)
-        throw new Error(`Selector with id ${id} does not exist`);
-
-      db.selectors = selectors;
-
-      fs.writeFileSync(
-        path.resolve(__dirname, '../../../db.json'),
-        JSON.stringify(db),
-        'utf-8'
-      );
-
+      if(!result.acknowledged) throw new Error('Selector delete failed. Delete not acknowledged');
+  
+      close();
+      
       return Result.ok<null>();
     } catch (error) {
       return Result.fail<null>(error.message);
@@ -204,21 +164,20 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   };
 
   #buildProperties = (selector: SelectorPersistence): SelectorProperties => ({
-    id: selector.id,
+    // eslint-disable-next-line no-underscore-dangle
+    id: selector._id,
     content: selector.content,
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,
     alerts: selector.alerts.map((alert) => {
       const alertResult = Alert.create({ createdOn: alert.createdOn });
       if (alertResult.value) return alertResult.value;
-      throw new Error(
-        alertResult.error || `Creation of selector alert failed`
-      );
+      throw new Error(alertResult.error || `Creation of selector alert failed`);
     }),
   });
 
-  #toPersistence = (selector: Selector): SelectorPersistence => ({
-    id: selector.id,
+  #toPersistence = (selector: Selector): Document => ({
+    _id: ObjectId.createFromHexString(selector.id),
     content: selector.content,
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,

@@ -1,8 +1,7 @@
 // TODO Violation of Dependency Rule
-import { v4 as uuidv4 } from 'uuid';
+import { ObjectId } from 'mongodb';
 import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
-import Id from '../value-types/id';
 import { Selector, SelectorProperties } from '../entities/selector';
 import { SelectorDto, buildSelectorDto } from './selector-dto';
 import { ISelectorRepository } from './i-selector-repository';
@@ -51,7 +50,7 @@ export class CreateSelector
     request: CreateSelectorRequestDto
   ): Result<Selector | null> => {
     const selectorProperties: SelectorProperties = {
-      id: Id.next(uuidv4).id,
+      id: new ObjectId().toHexString(),
       content: request.content,
       systemId: request.systemId,
     };
