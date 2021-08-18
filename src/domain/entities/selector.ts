@@ -70,8 +70,4 @@ export class Selector {
     const selector = new Selector(properties);
     return Result.ok<Selector>(selector);
   }
-
-  public addAlert(alert: Alert): void {
-    this.#alerts.push(alert);
-  }
 }

@@ -38,7 +38,7 @@ export class CreateSelector
           `Selector ${readSelectorResult[0].content} is already registered under ${readSelectorResult[0].id}`
         );
 
-      await this.#selectorRepository.save(selector.value);
+      await this.#selectorRepository.insertOne(selector.value);
 
       return Result.ok<SelectorDto>(buildSelectorDto(selector.value));
     } catch (error) {

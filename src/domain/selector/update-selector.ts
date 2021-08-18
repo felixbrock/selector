@@ -1,10 +1,13 @@
 import IUseCase from '../services/use-case';
-import { Selector } from '../entities/selector';
-import { SelectorDto, buildSelectorDto } from './selector-dto';
-import { ISelectorRepository } from './i-selector-repository';
+import { buildSelectorDto, SelectorDto } from './selector-dto';
+import {
+  ISelectorRepository,
+  SelectorUpdateDto,
+} from './i-selector-repository';
 import Result from '../value-types/transient-types/result';
 import { Alert } from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
+import { Selector } from '../entities/selector';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
 
@@ -36,21 +39,24 @@ export class UpdateSelector
       if (!selector)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
-      const modifiedSelector = await this.#modifySelector(selector, request);
+      const updateDto = await this.#buildUpdateDto(request);
 
-      await this.#selectorRepository.update(modifiedSelector);
+      const updateResult = await this.#selectorRepository.updateOne(request.id, updateDto);
 
-      return Result.ok<SelectorDto>(buildSelectorDto(modifiedSelector));
+      if(updateResult.error) throw new Error(updateResult.error);
+
+      // TODO - Doesn't return the right object. Fix.
+      return Result.ok<SelectorDto>(buildSelectorDto(selector)
+      );
     } catch (error) {
       return Result.fail<SelectorDto>(error.message);
     }
   }
 
-  #modifySelector = async (
-    selector: Selector,
+  #buildUpdateDto = async (
     request: UpdateSelectorRequestDto
-  ): Promise<Selector> => {
-    const selectorToModify = selector;
+  ): Promise<SelectorUpdateDto> => {
+    const updateDto: SelectorUpdateDto = {};
 
     if (request.content) {
       const readSelectorResult: SelectorDto[] =
@@ -60,21 +66,21 @@ export class UpdateSelector
           `Selector ${readSelectorResult[0].content} is already registered under ${readSelectorResult[0].id}`
         );
 
-      selectorToModify.content = request.content;
+      updateDto.content = request.content;
     }
 
     if (request.alert) {
-      const alertResult = Alert.create({});
+      const createResult = Alert.create({});
       // TODO No uniform usage of Result.value Result.error and result.success. Fix.
-      if (alertResult.error) throw new Error(alertResult.error);
-      if (!alertResult.value)
+      if (createResult.error) throw new Error(createResult.error);
+      if (!createResult.value)
         throw new Error(`Creation of selector alert ${request.alert} failed`);
 
-      selectorToModify.addAlert(alertResult.value);
+      updateDto.alert = createResult.value;
     }
 
-    selectorToModify.modifiedOn = Date.now();
+    updateDto.modifiedOn = Date.now();
 
-    return selectorToModify;
+    return updateDto;
   };
 }

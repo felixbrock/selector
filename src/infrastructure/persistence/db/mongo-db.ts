@@ -1,11 +1,11 @@
 import { Db, MongoClient, ServerApiVersion } from 'mongodb';
 import { appConfig } from '../../../config';
 
-const client = new MongoClient(appConfig.mongodb.url, { serverApi: ServerApiVersion.v1 });
+export const createClient = (): MongoClient => new MongoClient(appConfig.mongodb.url, { serverApi: ServerApiVersion.v1 });
 
-export const connect = async (): Promise<Db> => {
+export const connect = async (client: MongoClient): Promise<Db> => {
   await client.connect();
   return client.db(appConfig.mongodb.dbName);
 };
 
-export const close = async (): Promise<void> => client.close();
+export const close = async (client: MongoClient): Promise<void> => client.close();

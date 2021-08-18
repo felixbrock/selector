@@ -1,8 +1,8 @@
 import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import {ISelectorRepository} from './i-selector-repository';
-import { Selector } from '../entities/selector';
 import { DeleteSubscriptions } from '../automation-api/delete-subscriptions';
+import { Selector } from '../entities/selector';
 
 export interface DeleteSelectorRequestDto {
   id: string;
@@ -41,7 +41,7 @@ export class DeleteSelector
       if (deleteSubscriptionsResult.error) throw new Error(deleteSubscriptionsResult.error);
 
       const deleteSelectorResult: Result<null> =
-        await this.#selectorRepository.delete(request.id);
+        await this.#selectorRepository.deleteOne(request.id);
 
       if(deleteSelectorResult.error) throw new Error(deleteSelectorResult.error);
 

@@ -3,10 +3,11 @@ import { Selector, SelectorProperties } from '../../domain/entities/selector';
 import {
   ISelectorRepository,
   SelectorQueryDto,
+  SelectorUpdateDto,
 } from '../../domain/selector/i-selector-repository';
 import { Alert } from '../../domain/value-types/alert';
 import Result from '../../domain/value-types/transient-types/result';
-import { connect, close } from './db/mongo-db';
+import { connect, close, createClient } from './db/mongo-db';
 
 interface AlertPersistence {
   createdOn: number;
@@ -27,12 +28,13 @@ const collectionName = 'selectors';
 
 export default class SelectorRepositoryImpl implements ISelectorRepository {
   public findOne = async (id: string): Promise<Selector | null> => {
-    const db = await connect();
+    const client = createClient();
+    const db = await connect(client);
     const result: any = await db
       .collection(collectionName)
       .findOne({ _id: new ObjectId(id) });
 
-    close();
+    close(client);
 
     if (!result) return null;
 
@@ -42,13 +44,14 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   public findBy= async (selectorQueryDto: SelectorQueryDto): Promise<Selector[]> => {
     if (!Object.keys(selectorQueryDto).length) return this.all();
 
-    const db = await connect();
+    const client = createClient();
+    const db = await connect(client);
     const result: FindCursor = await db
       .collection(collectionName)
       .find(this.#buildFilter(selectorQueryDto));
     const results = await result.toArray();
 
-    close();
+    close(client);
 
     if (!results || !results.length) return [];
 
@@ -86,13 +89,14 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   };
 
   public all = async (): Promise<Selector[]> => {
-    const db = await connect();
+    const client = createClient();
+    const db = await connect(client);
     const result: FindCursor = await db
       .collection(collectionName)
       .find();
     const results = await result.toArray();
 
-    close();
+    close(client);
 
     if (!results || !results.length) return [];
 
@@ -101,16 +105,17 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     );
   }
 
-  public save = async (selector: Selector): Promise<Result<null>> => {
+  public insertOne = async (selector: Selector): Promise<Result<null>> => {
     try {
-      const db = await connect();
+      const client = createClient();
+    const db = await connect(client);
       const result: InsertOneResult<Document> = await db
         .collection(collectionName)
         .insertOne(this.#toPersistence(selector));
       
       if(!result.acknowledged) throw new Error('Selector creation failed. Insert not acknowledged');
   
-      close();
+      close(client);
       
       return Result.ok<null>();
     } catch (error) {
@@ -118,16 +123,17 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     }
   }
 
-  public update = async (selector: Selector): Promise<Result<null>> => {
+  public updateOne = async (id: string, updateDto: SelectorUpdateDto): Promise<Result<null>> => {
     try {
-      const db = await connect();
+      const client = createClient();
+    const db = await connect(client);
       const result: Document | UpdateResult = await db
         .collection(collectionName)
-        .updateOne({ _id: new ObjectId(selector.id) }, this.#toPersistence(selector));
+        .updateOne({ _id: new ObjectId(id) }, this.#buildUpdateFilter(updateDto));
 
       if(!result.acknowledged) throw new Error('Selector update failed. Update not acknowledged');
   
-      close();
+      close(client);
       
       return Result.ok<null>();
     } catch (error) {
@@ -135,16 +141,28 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     }
   }
 
-  public delete = async (id: string): Promise<Result<null>> => {
+  #buildUpdateFilter = (selectorUpdateDto: SelectorUpdateDto): any => {
+    const filter: { [key: string]: any } = {};
+
+    if (selectorUpdateDto.content) filter.content = selectorUpdateDto.content;
+    if (selectorUpdateDto.systemId) filter.systemId = selectorUpdateDto.systemId;
+    if (selectorUpdateDto.modifiedOn) filter.modifiedOn = selectorUpdateDto.modifiedOn;
+    if (selectorUpdateDto.alert) filter.$push = this.#alertToPersistence(selectorUpdateDto.alert);
+
+    return {$set: filter};
+  };
+
+  public deleteOne = async (id: string): Promise<Result<null>> => {
     try {
-      const db = await connect();
+      const client = createClient();
+    const db = await connect(client);
       const result: DeleteResult = await db
         .collection(collectionName)
         .deleteOne({ _id: new ObjectId(id) });
 
       if(!result.acknowledged) throw new Error('Selector delete failed. Delete not acknowledged');
   
-      close();
+      close(client);
       
       return Result.ok<null>();
     } catch (error) {
@@ -182,9 +200,9 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,
     alerts: selector.alerts.map(
-      (alert): AlertPersistence => ({
-        createdOn: alert.createdOn,
-      })
+      (alert): AlertPersistence => this.#alertToPersistence(alert)
     ),
   });
+
+  #alertToPersistence = (alert: Alert): AlertPersistence => ({createdOn: alert.createdOn});
 }
