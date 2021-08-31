@@ -42,7 +42,7 @@ export class CreateSelector
 
       return Result.ok<SelectorDto>(buildSelectorDto(selector.value));
     } catch (error) {
-      return Result.fail<SelectorDto>(error.message);
+      return Result.fail<SelectorDto>(typeof error === 'string' ? error : error.message);
     }
   }
 

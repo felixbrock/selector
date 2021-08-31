@@ -33,7 +33,7 @@ export class GetSystem
 
       return Result.ok<SystemDto>(getSystemResult);
     } catch (error) {
-      return Result.fail<SystemDto>(error.message);
+      return Result.fail<SystemDto>(typeof error === 'string' ? error : error.message);
     }
   }
 }

@@ -74,7 +74,7 @@ export class CreateAlert
 
       return Result.ok<AlertDto>(alertDto);
     } catch (error) {
-      return Result.fail<AlertDto>(error.message);
+      return Result.fail<AlertDto>(typeof error === 'string' ? error : error.message);
     }
   }
 

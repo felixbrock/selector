@@ -37,7 +37,7 @@ export class ReadSelectors
         selectors.map((selector) => buildSelectorDto(selector))
       );
     } catch (error) {
-      return Result.fail<null>(error.message);
+      return Result.fail<null>(typeof error === 'string' ? error : error.message);
     }
   }
 

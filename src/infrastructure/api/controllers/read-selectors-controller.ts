@@ -65,7 +65,7 @@ export default class ReadSelectorsController extends BaseController {
             : undefined,
       });
     } catch (error) {
-      return Result.fail<ReadSelectorsRequestDto>(error.message);
+      return Result.fail<ReadSelectorsRequestDto>(typeof error === 'string' ? error : error.message);
     }
   };
 

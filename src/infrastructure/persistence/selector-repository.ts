@@ -119,7 +119,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       
       return Result.ok<null>();
     } catch (error) {
-      return Result.fail<null>(error.message);
+      return Result.fail<null>(typeof error === 'string' ? error : error.message);
     }
   }
 
@@ -137,7 +137,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       
       return Result.ok<null>();
     } catch (error) {
-      return Result.fail<null>(error.message);
+      return Result.fail<null>(typeof error === 'string' ? error : error.message);
     }
   }
 
@@ -166,7 +166,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       
       return Result.ok<null>();
     } catch (error) {
-      return Result.fail<null>(error.message);
+      return Result.fail<null>(typeof error === 'string' ? error : error.message);
     }
   }
 
