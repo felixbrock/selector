@@ -44,8 +44,7 @@ export class UpdateSelector
       const updateResult = await this.#selectorRepository.updateOne(request.id, updateDto);
 
       if(updateResult.error) throw new Error(updateResult.error);
-
-      // TODO - Doesn't return the right object. Fix.
+      
       return Result.ok<SelectorDto>(buildSelectorDto(selector)
       );
     } catch (error) {

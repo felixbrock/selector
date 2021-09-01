@@ -1,4 +1,11 @@
-import { DeleteResult, Document, FindCursor, InsertOneResult, ObjectId, UpdateResult } from 'mongodb';
+import {
+  DeleteResult,
+  Document,
+  FindCursor,
+  InsertOneResult,
+  ObjectId,
+  UpdateResult,
+} from 'mongodb';
 import { Selector, SelectorProperties } from '../../domain/entities/selector';
 import {
   ISelectorRepository,
@@ -37,11 +44,13 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     close(client);
 
     if (!result) return null;
-
+    
     return this.#toEntity(this.#buildProperties(result));
-  }
+  };
 
-  public findBy= async (selectorQueryDto: SelectorQueryDto): Promise<Selector[]> => {
+  public findBy = async (
+    selectorQueryDto: SelectorQueryDto
+  ): Promise<Selector[]> => {
     if (!Object.keys(selectorQueryDto).length) return this.all();
 
     const client = createClient();
@@ -58,7 +67,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     return results.map((element: any) =>
       this.#toEntity(this.#buildProperties(element))
     );
-  }
+  };
 
   #buildFilter = (selectorQueryDto: SelectorQueryDto): any => {
     const filter: { [key: string]: any } = {};
@@ -91,9 +100,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   public all = async (): Promise<Selector[]> => {
     const client = createClient();
     const db = await connect(client);
-    const result: FindCursor = await db
-      .collection(collectionName)
-      .find();
+    const result: FindCursor = await db.collection(collectionName).find();
     const results = await result.toArray();
 
     close(client);
@@ -103,72 +110,100 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     return results.map((element: any) =>
       this.#toEntity(this.#buildProperties(element))
     );
-  }
+  };
 
   public insertOne = async (selector: Selector): Promise<Result<null>> => {
     try {
       const client = createClient();
-    const db = await connect(client);
+      const db = await connect(client);
       const result: InsertOneResult<Document> = await db
         .collection(collectionName)
         .insertOne(this.#toPersistence(selector));
-      
-      if(!result.acknowledged) throw new Error('Selector creation failed. Insert not acknowledged');
-  
+
+      if (!result.acknowledged)
+        throw new Error('Selector creation failed. Insert not acknowledged');
+
       close(client);
-      
+
       return Result.ok<null>();
     } catch (error) {
-      return Result.fail<null>(typeof error === 'string' ? error : error.message);
+      return Result.fail<null>(
+        typeof error === 'string' ? error : error.message
+      );
     }
-  }
+  };
 
-  public updateOne = async (id: string, updateDto: SelectorUpdateDto): Promise<Result<null>> => {
+  public updateOne = async (
+    id: string,
+    updateDto: SelectorUpdateDto
+  ): Promise<Result<null>> => {
     try {
       const client = createClient();
-    const db = await connect(client);
+      const db = await connect(client);
+     
       const result: Document | UpdateResult = await db
         .collection(collectionName)
-        .updateOne({ _id: new ObjectId(id) }, this.#buildUpdateFilter(updateDto));
+        .updateOne(
+          { _id: new ObjectId(id) },
+          this.#buildUpdateFilter(updateDto)
+        );
 
-      if(!result.acknowledged) throw new Error('Selector update failed. Update not acknowledged');
-  
+      if (!result.acknowledged)
+        throw new Error('Selector update failed. Update not acknowledged');
+
       close(client);
-      
+
       return Result.ok<null>();
     } catch (error) {
-      return Result.fail<null>(typeof error === 'string' ? error : error.message);
+      return Result.fail<null>(
+        typeof error === 'string' ? error : error.message
+      );
     }
-  }
+  };
 
-  #buildUpdateFilter = (selectorUpdateDto: SelectorUpdateDto): any => {
+  #buildUpdateFilter = (
+    selectorUpdateDto: SelectorUpdateDto
+  ): { [key: string]: any } => {
     const filter: { [key: string]: any } = {};
+    const setFilter: { [key: string]: any } = {};
+    const pushFilter: { [key: string]: any } = {};
 
-    if (selectorUpdateDto.content) filter.content = selectorUpdateDto.content;
-    if (selectorUpdateDto.systemId) filter.systemId = selectorUpdateDto.systemId;
-    if (selectorUpdateDto.modifiedOn) filter.modifiedOn = selectorUpdateDto.modifiedOn;
-    if (selectorUpdateDto.alert) filter.$push = this.#alertToPersistence(selectorUpdateDto.alert);
+    if (selectorUpdateDto.content)
+      setFilter.content = selectorUpdateDto.content;
+    if (selectorUpdateDto.systemId)
+      setFilter.systemId = selectorUpdateDto.systemId;
+    if (selectorUpdateDto.modifiedOn)
+      setFilter.modifiedOn = selectorUpdateDto.modifiedOn;
 
-    return {$set: filter};
+    if (selectorUpdateDto.alert)
+      pushFilter.alerts = this.#alertToPersistence(selectorUpdateDto.alert);
+
+    if (Object.keys(setFilter).length) filter.$set = setFilter;
+    if (Object.keys(pushFilter).length) filter.$push = pushFilter;
+
+    return filter;
   };
 
   public deleteOne = async (id: string): Promise<Result<null>> => {
     try {
       const client = createClient();
-    const db = await connect(client);
+      const db = await connect(client);
       const result: DeleteResult = await db
         .collection(collectionName)
         .deleteOne({ _id: new ObjectId(id) });
 
-      if(!result.acknowledged) throw new Error('Selector delete failed. Delete not acknowledged');
-  
+      if (!result.acknowledged)
+        throw new Error('Selector delete failed. Delete not acknowledged');
+
       close(client);
-      
+
       return Result.ok<null>();
     } catch (error) {
-      return Result.fail<null>(typeof error === 'string' ? error : error.message);
+      return Result.fail<null>(
+        typeof error === 'string' ? error : error.message
+      );
     }
-  }
+  };
 
   #toEntity = (selectorProperties: SelectorProperties): Selector => {
     const createSelectorResult: Result<Selector> =
@@ -204,5 +239,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     ),
   });
 
-  #alertToPersistence = (alert: Alert): AlertPersistence => ({createdOn: alert.createdOn});
+  #alertToPersistence = (alert: Alert): AlertPersistence => ({
+    createdOn: alert.createdOn,
+  });
 }
