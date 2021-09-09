@@ -52,7 +52,7 @@ Docker deployment
 
 docker build -t 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0 . 
 
-docker run -dp 3000:3000 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0
+<!-- docker run -dp 3000:3000 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0 -->
 
 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 085009017826.dkr.ecr.eu-central-1.amazonaws.com
 
@@ -85,11 +85,10 @@ ADD CODING GUIDELINES
 
 Interface starting with 'I' if it is describing a class interface
 Interface over type. type only for specific purposes like union type
-const and let with type description for complex types or where type is not initially clear
-if one line then do it (like 'if' things)
-include public
 
-declare const and let type where complex types are used
+if one line then do it (like 'if' things)
+
+declare const and let type where complex types are used e.g. :Selector
 
 use CRUD verbs when describing repo functions (rather than add or list)
   - if addressing a database use 'read'
@@ -161,6 +160,8 @@ consuming: resources (documents, classes, functions, declarations...) consuming 
 Do not expose business logic to client. Be careful what errors to return when error handling
 https://itnext.io/graceful-error-handling-in-rest-driven-web-applications-d4209b4937aa
 
+http://callbackhell.com/
 
+Use arrow function notation rather than function keyword
 
 

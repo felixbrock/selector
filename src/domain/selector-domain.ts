@@ -49,7 +49,7 @@ export default class SelectorDomain {
     return this.#createAlert;
   }
 
-  constructor(
+  public constructor(
     createSelector: CreateSelector,
     updateSelector: UpdateSelector,
     readSelector: ReadSelector,

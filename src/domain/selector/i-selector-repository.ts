@@ -1,8 +1,6 @@
-import { Selector } from "../entities/selector";
-import { Alert } from "../value-types/alert";
-import Result from "../value-types/transient-types/result";
-
-
+import { Selector } from '../entities/selector';
+import { Alert } from '../value-types/alert';
+import Result from '../value-types/transient-types/result';
 
 export interface SelectorQueryDto {
   systemId?: string;
@@ -17,7 +15,7 @@ interface AlertQueryDto {
   createdOnEnd?: number;
 }
 
-export interface SelectorUpdateDto{
+export interface SelectorUpdateDto {
   systemId?: string;
   content?: string;
   alert?: Alert;
@@ -26,12 +24,9 @@ export interface SelectorUpdateDto{
 
 export interface ISelectorRepository {
   findOne(id: string): Promise<Selector | null>;
-  findBy(
-    selectorQueryDto: SelectorQueryDto
-  ): Promise<Selector[]>;
+  findBy(selectorQueryDto: SelectorQueryDto): Promise<Selector[]>;
   all(): Promise<Selector[]>;
   updateOne(id: string, updateDto: SelectorUpdateDto): Promise<Result<null>>;
   insertOne(selector: Selector): Promise<Result<null>>;
   deleteOne(id: string): Promise<Result<null>>;
-  // eslint-disable-next-line semi
 }

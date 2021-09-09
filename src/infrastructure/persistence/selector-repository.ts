@@ -26,7 +26,6 @@ interface SelectorPersistence {
   systemId: string;
   alerts: AlertPersistence[];
   modifiedOn: number;
-  // eslint-disable-next-line semi
 }
 
 const collectionName = 'selectors';
@@ -44,7 +43,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     close(client);
 
     if (!result) return null;
-    
+
     return this.#toEntity(this.#buildProperties(result));
   };
 
@@ -140,7 +139,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     try {
       const client = createClient();
       const db = await connect(client);
-     
+
       const result: Document | UpdateResult = await db
         .collection(collectionName)
         .updateOne(
