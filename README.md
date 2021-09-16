@@ -50,13 +50,11 @@ security check on repository level
 
 Docker deployment
 
-docker build -t 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0 . 
-
-<!-- docker run -dp 3000:3000 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0 -->
-
 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 085009017826.dkr.ecr.eu-central-1.amazonaws.com
 
-docker push 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0
+$newVersion = 1; $previousVersion = $newVersion - 1; $serviceName = 'selector'; $name = "085009017826.dkr.ecr.eu-central-1.amazonaws.com/${serviceName}"; docker build -t "${name}:v1.0.${newVersion}" .; docker push "${name}:v1.0.${newVersion}"; docker rmi "${name}:v1.0.${previousVersion}"; aws ecr batch-delete-image --repository-name $serviceName --image-ids "imageTag=v1.0.${previousVersion}" 
+
+<!-- docker run -dp 3000:3000 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0 -->
 
 aws ecs update-service --cluster hivedive-microservices --service selector-service --force-new-deployment
 
