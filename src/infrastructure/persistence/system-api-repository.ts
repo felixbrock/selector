@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { nodeEnv, serviceDiscoveryNamespace } from '../../config';
+import { nodeEnv, port, serviceDiscoveryNamespace } from '../../config';
 import ISystemApiRepository from '../../domain/system-api/i-system-api-repository';
 import SystemDto from '../../domain/system-api/system-dto';
 import WarningDto from '../../domain/system-api/warning-dto';
@@ -14,7 +14,7 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
     try {
       const ip = await discoverIp(serviceDiscoveryNamespace, 'system-service');
 
-      return `http://${ip}/${path}`;
+      return `http://${ip}:${port}/${path}`;
     } catch (error: any) {
       return Promise.reject(typeof error === 'string' ? error : error.message);
     }
