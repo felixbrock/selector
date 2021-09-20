@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { URLSearchParams } from 'url';
-import { nodeEnv, port, serviceDiscoveryNamespace } from '../../config';
+import { nodeEnv, serviceDiscoveryNamespace } from '../../config';
 import { IAutomationApiRepository } from '../../domain/automation-api/delete-subscriptions';
 import Result from '../../domain/value-types/transient-types/result';
-import discoverIp from '../shared/service-discovery';
+import { DiscoveredService, discoverService } from '../shared/service-discovery';
 
 export default class AutomationApiRepositoryImpl implements IAutomationApiRepository {
   #getRoot = async (): Promise<string> => {
@@ -12,9 +12,12 @@ export default class AutomationApiRepositoryImpl implements IAutomationApiReposi
     if (nodeEnv !== 'production') return `http://localhost:8080/${path}`;
 
     try {
-      const ip = await discoverIp(serviceDiscoveryNamespace, 'automation-service');
+      const discoveredService : DiscoveredService = await discoverService(
+        serviceDiscoveryNamespace,
+        'automation-service'
+      );
 
-      return `http://${ip}:${port}/${path}`;
+      return `http://${discoveredService.ip}:${discoveredService.port}/${path}`;
     } catch (error: any) {
       return Promise.reject(typeof error === 'string' ? error : error.message);
     }

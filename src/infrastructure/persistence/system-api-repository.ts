@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { nodeEnv, port, serviceDiscoveryNamespace } from '../../config';
+import { nodeEnv, serviceDiscoveryNamespace } from '../../config';
 import ISystemApiRepository from '../../domain/system-api/i-system-api-repository';
 import SystemDto from '../../domain/system-api/system-dto';
 import WarningDto from '../../domain/system-api/warning-dto';
-import discoverIp from '../shared/service-discovery';
+import { DiscoveredService, discoverService } from '../shared/service-discovery';
 
 export default class SystemApiRepositoryImpl implements ISystemApiRepository {
   #getRoot = async (): Promise<string> => {
@@ -12,9 +12,12 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
     if (nodeEnv !== 'production') return `http://localhost:3002/${path}`;
 
     try {
-      const ip = await discoverIp(serviceDiscoveryNamespace, 'system-service');
+      const discoveredService : DiscoveredService = await discoverService(
+        serviceDiscoveryNamespace,
+        'system-service'
+      );
 
-      return `http://${ip}:${port}/${path}`;
+      return `http://${discoveredService.ip}:${discoveredService.port}/${path}`;
     } catch (error: any) {
       return Promise.reject(typeof error === 'string' ? error : error.message);
     }
