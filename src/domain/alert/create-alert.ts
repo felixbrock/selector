@@ -73,7 +73,7 @@ export class CreateAlert
         );
 
       return Result.ok<AlertDto>(alertDto);
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<AlertDto>(typeof error === 'string' ? error : error.message);
     }
   }

@@ -52,7 +52,7 @@ Docker deployment
 
 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 085009017826.dkr.ecr.eu-central-1.amazonaws.com
 
-$newVersion = 6; $previousVersion = $newVersion - 1; $serviceName = 'selector'; $name = "085009017826.dkr.ecr.eu-central-1.amazonaws.com/${serviceName}"; npm run build; docker build -t "${name}:v1.0.${newVersion}" .; docker push "${name}:v1.0.${newVersion}"; docker rmi "${name}:v1.0.${previousVersion}"; aws ecr batch-delete-image --repository-name $serviceName --image-ids "imageTag=v1.0.${previousVersion}"
+$newVersion = 7; $previousVersion = $newVersion - 1; $serviceName = 'selector'; $name = "085009017826.dkr.ecr.eu-central-1.amazonaws.com/${serviceName}"; npm run build; docker build -t "${name}:v1.0.${newVersion}" .; docker push "${name}:v1.0.${newVersion}"; docker rmi "${name}:v1.0.${previousVersion}"; aws ecr batch-delete-image --repository-name $serviceName --image-ids "imageTag=v1.0.${previousVersion}"
 
 <!-- docker run -dp 3000:3000 085009017826.dkr.ecr.eu-central-1.amazonaws.com/selector:v1.0.0 -->
 
@@ -161,5 +161,14 @@ https://itnext.io/graceful-error-handling-in-rest-driven-web-applications-d4209b
 http://callbackhell.com/
 
 Use arrow function notation rather than function keyword
+
+Environments
+https://www.quora.com/What-is-the-difference-between-development-test-and-production-environment
+
+Production environment - that one is pretty simple, it's an instance(or instances) on which your application for end users runs - it might be e.g. some AWS instance, Heroku etc.
+
+Test environment - it tries to emulate production environment as much as possible, generally it's used for testing apllication before deploying it to production environment (e.g. making new version of you app available for users), checking if new features didn't introduce any regressions, etc.
+
+Development environment - this one is also simple, it's environment on developer's machine, e.g. some VM.
 
 

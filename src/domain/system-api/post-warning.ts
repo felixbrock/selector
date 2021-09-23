@@ -30,7 +30,7 @@ export class PostWarning
         throw new Error(`Creation of warning for ${request.systemId} failed`);
 
       return Result.ok<WarningDto>(warningDto);
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<WarningDto>(typeof error === 'string' ? error : error.message);
     }
   }
