@@ -172,3 +172,9 @@ Test environment - it tries to emulate production environment as much as possibl
 Development environment - this one is also simple, it's environment on developer's machine, e.g. some VM.
 
 
+Successful branching
+https://nvie.com/posts/a-successful-git-branching-model/
+
+
+
+
