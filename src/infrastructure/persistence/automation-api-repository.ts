@@ -1,31 +1,19 @@
 import axios from 'axios';
 import { URLSearchParams } from 'url';
-import { nodeEnv, serviceDiscoveryNamespace } from '../../config';
 import { IAutomationApiRepository } from '../../domain/automation-api/delete-subscriptions';
 import Result from '../../domain/value-types/transient-types/result';
-import { DiscoveredService, discoverService } from '../shared/service-discovery';
+import getRoot from '../shared/api-root-builder';
 
 export default class AutomationApiRepositoryImpl implements IAutomationApiRepository {
-  #getRoot = async (): Promise<string> => {
-    const path = 'api/v1';
+  #path = 'api/v1';
 
-    if (nodeEnv !== 'production') return `http://localhost:8080/${path}`;
+  #serviceName = 'automation';
 
-    try {
-      const discoveredService : DiscoveredService = await discoverService(
-        serviceDiscoveryNamespace,
-        'automation-service'
-      );
-
-      return `http://${discoveredService.ip}:${discoveredService.port}/${path}`;
-    } catch (error: any) {
-      return Promise.reject(typeof error === 'string' ? error : error.message);
-    }
-  };
+  #port = '8080';
 
   public deleteSubscriptions = async (params: URLSearchParams): Promise<Result<null>> => {
     try {
-      const apiRoot = await this.#getRoot();
+      const apiRoot = await getRoot(this.#serviceName, this.#port, this.#path);
 
       const response = await axios.delete(`${apiRoot}/automations/subscriptions`, {params});
       const jsonResponse = response.data;
