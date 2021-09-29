@@ -12,8 +12,8 @@ export default class CreateSelectorController extends BaseController {
   }
 
   #buildRequestDto = (httpRequest: Request): CreateSelectorRequestDto => ({
-    systemId: httpRequest.body.systemId,
-    content: httpRequest.body.content,
+    systemId: httpRequest.body.data.systemId,
+    content: httpRequest.body.data.content,
   });
 
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
@@ -32,7 +32,7 @@ export default class CreateSelectorController extends BaseController {
         useCaseResult.value,
         CodeHttp.CREATED
       );
-    } catch (error) {
+    } catch (error: any) {
       return CreateSelectorController.fail(res, error);
     }
   }
