@@ -12,8 +12,8 @@ export default class CreateSelectorController extends BaseController {
   }
 
   #buildRequestDto = (httpRequest: Request): CreateSelectorRequestDto => ({
-    systemId: httpRequest.body.data.systemId,
-    content: httpRequest.body.data.content,
+    systemId: httpRequest.body.systemId,
+    content: httpRequest.body.content,
   });
 
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
