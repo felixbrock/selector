@@ -7,6 +7,7 @@ import { SelectorDto, buildSelectorDto } from './selector-dto';
 export interface ReadSelectorsRequestDto {
   systemId?: string;
   content?: string;
+  organizationId?: string;
   alert?: { createdOnStart?: number; createdOnEnd?: number };
   modifiedOnStart?: number;
   modifiedOnEnd?: number;
@@ -36,7 +37,7 @@ export class ReadSelectors
       return Result.ok<SelectorDto[]>(
         selectors.map((selector) => buildSelectorDto(selector))
       );
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<null>(typeof error === 'string' ? error : error.message);
     }
   }
@@ -47,6 +48,7 @@ export class ReadSelectors
     const queryDto: SelectorQueryDto = {};
 
     if (request.content) queryDto.content = request.content;
+    if(request.organizationId) queryDto.organizationId = request.organizationId;
     if (request.systemId) queryDto.systemId = request.systemId;
     if (request.alert && (request.alert.createdOnStart || request.alert.createdOnEnd))
       queryDto.alert = request.alert;

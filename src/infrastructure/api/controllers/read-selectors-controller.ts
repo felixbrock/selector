@@ -22,6 +22,7 @@ export default class ReadSelectorsController extends BaseController {
     const {
       systemId,
       content,
+      organizationId,
       alertCreatedOnStart,
       alertCreatedOnEnd,
       modifiedOnStart,
@@ -31,6 +32,7 @@ export default class ReadSelectorsController extends BaseController {
     const requestValid = this.#queryParametersValid([
       systemId,
       content,
+      organizationId,
       alertCreatedOnStart,
       alertCreatedOnEnd,
       modifiedOnStart,
@@ -44,6 +46,8 @@ export default class ReadSelectorsController extends BaseController {
     try {
       return Result.ok<ReadSelectorsRequestDto>({
         content: typeof content === 'string' ? content : undefined,
+        organizationId:
+          typeof organizationId === 'string' ? organizationId : undefined,
         systemId: typeof systemId === 'string' ? systemId : undefined,
         alert: {
           createdOnStart:
@@ -64,8 +68,10 @@ export default class ReadSelectorsController extends BaseController {
             ? this.#buildDate(modifiedOnEnd)
             : undefined,
       });
-    } catch (error) {
-      return Result.fail<ReadSelectorsRequestDto>(typeof error === 'string' ? error : error.message);
+    } catch (error: any) {
+      return Result.fail<ReadSelectorsRequestDto>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   };
 
@@ -80,10 +86,15 @@ export default class ReadSelectorsController extends BaseController {
     const date = timestamp.match(/[^T]*/s);
     const time = timestamp.match(/(?<=T)[^Z]*/s);
 
-    if ((!date || !date[0] || date[0].length !== 8) || (!time || !time[0] || time[0].length !== 6))
-      throw new Error(
-        `${timestamp} not in format YYYYMMDD"T"HHMMSS"Z"`
-      );
+    if (
+      !date ||
+      !date[0] ||
+      date[0].length !== 8 ||
+      !time ||
+      !time[0] ||
+      time[0].length !== 6
+    )
+      throw new Error(`${timestamp} not in format YYYYMMDD"T"HHMMSS"Z"`);
 
     const year = date[0].slice(0, 4);
     const month = date[0].slice(4, 6);
@@ -117,7 +128,7 @@ export default class ReadSelectorsController extends BaseController {
       }
 
       return ReadSelectorsController.ok(res, useCaseResult.value, CodeHttp.OK);
-    } catch (error) {
+    } catch (error: any) {
       return ReadSelectorsController.fail(res, error);
     }
   }

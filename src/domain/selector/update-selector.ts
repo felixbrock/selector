@@ -8,12 +8,17 @@ import Result from '../value-types/transient-types/result';
 import { Alert } from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
 import { Selector } from '../entities/selector';
+import {
+  GetOrganization,
+  GetOrganizationDto,
+} from '../account-api/get-organization';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
 
 export interface UpdateSelectorRequestDto {
   id: string;
   content?: string;
+  organizationId?: string;
   alert?: AlertDto;
 }
 
@@ -24,8 +29,14 @@ export class UpdateSelector
 {
   #selectorRepository: ISelectorRepository;
 
-  public constructor(selectorRepository: ISelectorRepository) {
+  #getOrganization: GetOrganization;
+
+  public constructor(
+    selectorRepository: ISelectorRepository,
+    getOrganization: GetOrganization
+  ) {
     this.#selectorRepository = selectorRepository;
+    this.#getOrganization = getOrganization;
   }
 
   public async execute(
@@ -41,14 +52,18 @@ export class UpdateSelector
 
       const updateDto = await this.#buildUpdateDto(request);
 
-      const updateResult = await this.#selectorRepository.updateOne(request.id, updateDto);
-
-      if(updateResult.error) throw new Error(updateResult.error);
-      
-      return Result.ok<SelectorDto>(buildSelectorDto(selector)
+      const updateResult = await this.#selectorRepository.updateOne(
+        request.id,
+        updateDto
       );
-    } catch (error) {
-      return Result.fail<SelectorDto>(typeof error === 'string' ? error : error.message);
+
+      if (updateResult.error) throw new Error(updateResult.error);
+
+      return Result.ok<SelectorDto>(buildSelectorDto(selector));
+    } catch (error: any) {
+      return Result.fail<SelectorDto>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   }
 
@@ -66,6 +81,18 @@ export class UpdateSelector
         );
 
       updateDto.content = request.content;
+    }
+
+    if (request.organizationId) {
+      const readOrganizationResult: Result<GetOrganizationDto | null> =
+        await this.#getOrganization.execute({ id: request.organizationId });
+
+      if (!readOrganizationResult.value)
+        throw new Error(
+          `System's organization ${request.organizationId} does not exist`
+        );
+
+      updateDto.organizationId = request.organizationId;
     }
 
     if (request.alert) {

@@ -23,6 +23,7 @@ interface AlertPersistence {
 interface SelectorPersistence {
   _id: string;
   content: string;
+  organizationId: string;
   systemId: string;
   alerts: AlertPersistence[];
   modifiedOn: number;
@@ -72,6 +73,8 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     const filter: { [key: string]: any } = {};
 
     if (selectorQueryDto.content) filter.content = selectorQueryDto.content;
+    if (selectorQueryDto.organizationId)
+      filter.organizationId = selectorQueryDto.organizationId;
     if (selectorQueryDto.systemId) filter.systemId = selectorQueryDto.systemId;
 
     const modifiedOnFilter: { [key: string]: number } = {};
@@ -125,7 +128,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       close(client);
 
       return Result.ok<null>();
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<null>(
         typeof error === 'string' ? error : error.message
       );
@@ -153,7 +156,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       close(client);
 
       return Result.ok<null>();
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<null>(
         typeof error === 'string' ? error : error.message
       );
@@ -169,6 +172,8 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
     if (selectorUpdateDto.content)
       setFilter.content = selectorUpdateDto.content;
+    if (selectorUpdateDto.organizationId)
+      setFilter.organizationId = selectorUpdateDto.organizationId;
     if (selectorUpdateDto.systemId)
       setFilter.systemId = selectorUpdateDto.systemId;
     if (selectorUpdateDto.modifiedOn)
@@ -197,7 +202,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       close(client);
 
       return Result.ok<null>();
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<null>(
         typeof error === 'string' ? error : error.message
       );
@@ -219,6 +224,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     // eslint-disable-next-line no-underscore-dangle
     id: selector._id,
     content: selector.content,
+    organizationId: selector.organizationId,
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,
     alerts: selector.alerts.map((alert) => {
@@ -231,6 +237,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
   #toPersistence = (selector: Selector): Document => ({
     _id: ObjectId.createFromHexString(selector.id),
     content: selector.content,
+    organizationId: selector.organizationId,
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,
     alerts: selector.alerts.map(

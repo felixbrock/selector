@@ -5,6 +5,7 @@ import Result from '../value-types/transient-types/result';
 export interface SelectorQueryDto {
   systemId?: string;
   content?: string;
+  organizationId?: string;
   alert?: AlertQueryDto;
   modifiedOnStart?: number;
   modifiedOnEnd?: number;
@@ -18,6 +19,7 @@ interface AlertQueryDto {
 export interface SelectorUpdateDto {
   systemId?: string;
   content?: string;
+  organizationId?: string;
   alert?: Alert;
   modifiedOn?: number;
 }
