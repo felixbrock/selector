@@ -8,15 +8,17 @@ const selectorsRoutes = Router();
 const selectorDomain: SelectorDomain = app.selectorMain;
 
 const deleteSelectorsController = new DeleteSelectorsController(
-  selectorDomain.deleteSelectors
+  selectorDomain.deleteSelectors,
+  app.container.resolve('getAccounts')
 );
 
 const readSelectorsController = new ReadSelectorsController(
-  selectorDomain.readSelectors
+  selectorDomain.readSelectors,
+  app.container.resolve('getAccounts')
 );
 
 selectorsRoutes.get('/', (req, res) =>
-readSelectorsController.execute(req, res)
+  readSelectorsController.execute(req, res)
 );
 
 selectorsRoutes.delete('/', (req, res) =>

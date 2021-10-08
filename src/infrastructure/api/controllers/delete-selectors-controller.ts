@@ -1,19 +1,31 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
+import { GetAccounts } from '../../../domain/account-api/get-accounts';
 import {
   DeleteSelectors,
+  DeleteSelectorsAuthDto,
   DeleteSelectorsRequestDto,
   DeleteSelectorsResponseDto,
 } from '../../../domain/selector/delete-selectors';
 import Result from '../../../domain/value-types/transient-types/result';
-import { BaseController, CodeHttp } from '../../shared/base-controller';
+import {
+  BaseController,
+  CodeHttp,
+  UserAccountInfo,
+} from '../../shared/base-controller';
 
 export default class DeleteSelectorsController extends BaseController {
   #deleteSelectors: DeleteSelectors;
 
-  public constructor(deleteSelectors: DeleteSelectors) {
+  #getAccounts: GetAccounts;
+
+  public constructor(
+    deleteSelectors: DeleteSelectors,
+    getAccounts: GetAccounts
+  ) {
     super();
     this.#deleteSelectors = deleteSelectors;
+    this.#getAccounts = getAccounts;
   }
 
   #buildRequestDto = (
@@ -29,8 +41,35 @@ export default class DeleteSelectorsController extends BaseController {
     );
   };
 
+  #buildAuthDto = (
+    userAccountInfo: UserAccountInfo,
+    jwt: string
+  ): DeleteSelectorsAuthDto => ({
+    organizationId: userAccountInfo.organizationId,
+    jwt,
+  });
+
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
+      const token = req.headers.authorization;
+
+      if (!token)
+        return DeleteSelectorsController.unauthorized(res, 'Unauthorized');
+
+      const getUserAccountInfoResult: Result<UserAccountInfo> =
+        await DeleteSelectorsController.getUserAccountInfo(
+          token,
+          this.#getAccounts
+        );
+
+      if (!getUserAccountInfoResult.success)
+        return DeleteSelectorsController.unauthorized(
+          res,
+          getUserAccountInfoResult.error
+        );
+      if (!getUserAccountInfoResult.value)
+        throw new Error('Authorization failed');
+
       const buildDtoResult: Result<DeleteSelectorsRequestDto> =
         this.#buildRequestDto(req);
 
@@ -42,8 +81,13 @@ export default class DeleteSelectorsController extends BaseController {
           'Invalid request query paramerters'
         );
 
+      const authDto: DeleteSelectorsAuthDto = this.#buildAuthDto(
+        getUserAccountInfoResult.value,
+        token
+      );
+
       const useCaseResult: DeleteSelectorsResponseDto =
-        await this.#deleteSelectors.execute(buildDtoResult.value);
+        await this.#deleteSelectors.execute(buildDtoResult.value, authDto);
 
       if (useCaseResult.error) {
         return DeleteSelectorsController.badRequest(res, useCaseResult.error);
@@ -54,7 +98,7 @@ export default class DeleteSelectorsController extends BaseController {
         useCaseResult.value,
         CodeHttp.OK
       );
-    } catch (error) {
+    } catch (error: any) {
       return DeleteSelectorsController.fail(res, error);
     }
   }

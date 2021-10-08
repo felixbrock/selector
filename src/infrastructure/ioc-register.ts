@@ -14,7 +14,7 @@ import { DeleteSubscriptions } from '../domain/automation-api/delete-subscriptio
 import AutomationApiRepository from './persistence/automation-api-repository';
 import { ReadSelectors } from '../domain/selector/read-selectors';
 import { DeleteSelectors } from '../domain/selector/delete-selectors';
-import { GetOrganization } from '../domain/account-api/get-organization';
+import { GetAccounts } from '../domain/account-api/get-accounts';
 import AccountApiRepository from './persistence/account-api-repository';
 
 const iocRegister = createContainer({ injectionMode: InjectionMode.CLASSIC });
@@ -35,7 +35,7 @@ iocRegister.register({
 
   getSystem: asClass(GetSystem),
   postWarning: asClass(PostWarning),
-  getOrganization: asClass(GetOrganization),
+  getAccounts: asClass(GetAccounts),
 
   selectorRepository: asClass(SelectorRepository),
 

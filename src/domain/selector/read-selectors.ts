@@ -7,16 +7,24 @@ import { SelectorDto, buildSelectorDto } from './selector-dto';
 export interface ReadSelectorsRequestDto {
   systemId?: string;
   content?: string;
-  organizationId?: string;
   alert?: { createdOnStart?: number; createdOnEnd?: number };
   modifiedOnStart?: number;
   modifiedOnEnd?: number;
 }
 
+export interface ReadSelectorsAuthDto {
+  organizationId: string;
+}
+
 export type ReadSelectorsResponseDto = Result<SelectorDto[] | null>;
 
 export class ReadSelectors
-  implements IUseCase<ReadSelectorsRequestDto, ReadSelectorsResponseDto>
+  implements
+    IUseCase<
+      ReadSelectorsRequestDto,
+      ReadSelectorsResponseDto,
+      ReadSelectorsAuthDto
+    >
 {
   #selectorRepository: ISelectorRepository;
 
@@ -25,12 +33,13 @@ export class ReadSelectors
   }
 
   public async execute(
-    request: ReadSelectorsRequestDto
+    request: ReadSelectorsRequestDto,
+    auth: ReadSelectorsAuthDto
   ): Promise<ReadSelectorsResponseDto> {
     try {
       const selectors: Selector[] | null =
         await this.#selectorRepository.findBy(
-          this.#buildSelectorQueryDto(request)
+          this.#buildSelectorQueryDto(request, auth.organizationId)
         );
       if (!selectors) throw new Error(`Queried selectors do not exist`);
 
@@ -38,21 +47,28 @@ export class ReadSelectors
         selectors.map((selector) => buildSelectorDto(selector))
       );
     } catch (error: any) {
-      return Result.fail<null>(typeof error === 'string' ? error : error.message);
+      return Result.fail<null>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   }
 
   #buildSelectorQueryDto = (
-    request: ReadSelectorsRequestDto
+    request: ReadSelectorsRequestDto,
+    organizationId: string
   ): SelectorQueryDto => {
     const queryDto: SelectorQueryDto = {};
 
     if (request.content) queryDto.content = request.content;
-    if(request.organizationId) queryDto.organizationId = request.organizationId;
+    queryDto.organizationId = organizationId;
     if (request.systemId) queryDto.systemId = request.systemId;
-    if (request.alert && (request.alert.createdOnStart || request.alert.createdOnEnd))
+    if (
+      request.alert &&
+      (request.alert.createdOnStart || request.alert.createdOnEnd)
+    )
       queryDto.alert = request.alert;
-    if (request.modifiedOnStart) queryDto.modifiedOnStart = request.modifiedOnStart;
+    if (request.modifiedOnStart)
+      queryDto.modifiedOnStart = request.modifiedOnStart;
     if (request.modifiedOnEnd) queryDto.modifiedOnEnd = request.modifiedOnEnd;
 
     return queryDto;

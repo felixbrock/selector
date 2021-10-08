@@ -8,10 +8,19 @@ export interface ReadSelectorRequestDto {
   id: string;
 }
 
+export interface ReadSelectorAuthDto {
+  organizationId: string;
+}
+
 export type ReadSelectorResponseDto = Result<SelectorDto | null>;
 
 export class ReadSelector
-  implements IUseCase<ReadSelectorRequestDto, ReadSelectorResponseDto>
+  implements
+    IUseCase<
+      ReadSelectorRequestDto,
+      ReadSelectorResponseDto,
+      ReadSelectorAuthDto
+    >
 {
   #selectorRepository: ISelectorRepository;
 
@@ -20,7 +29,8 @@ export class ReadSelector
   }
 
   public async execute(
-    request: ReadSelectorRequestDto
+    request: ReadSelectorRequestDto,
+    auth: ReadSelectorAuthDto
   ): Promise<ReadSelectorResponseDto> {
     try {
       const selector: Selector | null = await this.#selectorRepository.findOne(
@@ -29,9 +39,14 @@ export class ReadSelector
       if (!selector)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
+      if (selector.organizationId !== auth.organizationId)
+        throw new Error('Not authorized to perform action');
+
       return Result.ok<SelectorDto>(buildSelectorDto(selector));
-    } catch (error) {
-      return Result.fail<SelectorDto>(typeof error === 'string' ? error : error.message);
+    } catch (error: any) {
+      return Result.fail<SelectorDto>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   }
 }

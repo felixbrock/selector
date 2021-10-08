@@ -1,6 +1,6 @@
 import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
-import {ISelectorRepository} from './i-selector-repository';
+import { ISelectorRepository } from './i-selector-repository';
 import { DeleteSubscriptions } from '../automation-api/delete-subscriptions';
 import { Selector } from '../entities/selector';
 
@@ -8,10 +8,20 @@ export interface DeleteSelectorRequestDto {
   id: string;
 }
 
+export interface DeleteSelectorAuthDto {
+  organizationId: string;
+  jwt: string;
+}
+
 export type DeleteSelectorResponseDto = Result<null>;
 
 export class DeleteSelector
-  implements IUseCase<DeleteSelectorRequestDto, DeleteSelectorResponseDto>
+  implements
+    IUseCase<
+      DeleteSelectorRequestDto,
+      DeleteSelectorResponseDto,
+      DeleteSelectorAuthDto
+    >
 {
   #selectorRepository: ISelectorRepository;
 
@@ -26,7 +36,8 @@ export class DeleteSelector
   }
 
   public async execute(
-    request: DeleteSelectorRequestDto
+    request: DeleteSelectorRequestDto,
+    auth: DeleteSelectorAuthDto
   ): Promise<DeleteSelectorResponseDto> {
     try {
       const selector: Selector | null = await this.#selectorRepository.findOne(
@@ -35,19 +46,29 @@ export class DeleteSelector
       if (!selector)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
-      const deleteSubscriptionsResult: Result<null> =
-        await this.#deleteSubscriptions.execute({ selectorId: request.id });
+      if (selector.organizationId !== auth.organizationId)
+        throw new Error('Not authorized to perform action');
 
-      if (deleteSubscriptionsResult.error) throw new Error(deleteSubscriptionsResult.error);
+      const deleteSubscriptionsResult: Result<null> =
+        await this.#deleteSubscriptions.execute(
+          { selectorId: request.id },
+          { jwt: auth.jwt }
+        );
+
+      if (deleteSubscriptionsResult.error)
+        throw new Error(deleteSubscriptionsResult.error);
 
       const deleteSelectorResult: Result<null> =
         await this.#selectorRepository.deleteOne(request.id);
 
-      if(deleteSelectorResult.error) throw new Error(deleteSelectorResult.error);
+      if (deleteSelectorResult.error)
+        throw new Error(deleteSelectorResult.error);
 
       return Result.ok<null>();
-    } catch (error) {
-      return Result.fail<null>(typeof error === 'string' ? error : error.message);
+    } catch (error: any) {
+      return Result.fail<null>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   }
 }

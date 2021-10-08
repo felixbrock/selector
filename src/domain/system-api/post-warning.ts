@@ -9,10 +9,14 @@ export interface PostWarningRequestDto {
   selectorId: string;
 }
 
+export interface PostWarningAuthDto {
+  jwt: string;
+}
+
 export type PostWarningResponseDto = Result<WarningDto | null>;
 
 export class PostWarning
-  implements IUseCase<PostWarningRequestDto, PostWarningResponseDto>
+  implements IUseCase<PostWarningRequestDto, PostWarningResponseDto, PostWarningAuthDto>
 {
   #systemApiRepository: ISystemApiRepository;
 
@@ -21,17 +25,24 @@ export class PostWarning
   }
 
   public async execute(
-    request: PostWarningRequestDto
+    request: PostWarningRequestDto,
+    auth: PostWarningAuthDto
   ): Promise<PostWarningResponseDto> {
     try {
-      const warningDto = await this.#systemApiRepository.postWarning(request.systemId, request.selectorId);
+      const warningDto = await this.#systemApiRepository.postWarning(
+        request.systemId,
+        request.selectorId,
+        auth.jwt
+      );
 
       if (!warningDto)
         throw new Error(`Creation of warning for ${request.systemId} failed`);
 
       return Result.ok<WarningDto>(warningDto);
     } catch (error: any) {
-      return Result.fail<WarningDto>(typeof error === 'string' ? error : error.message);
+      return Result.fail<WarningDto>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   }
 }

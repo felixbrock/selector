@@ -10,16 +10,16 @@ const selectorRoutes = Router();
 const selectorDomain: SelectorDomain = app.selectorMain;
 
 const createSelectorController = new CreateSelectorController(
-  selectorDomain.createSelector
+  selectorDomain.createSelector, app.container.resolve('getAccounts')
 );
 const readSelectorController = new ReadSelectorController(
-  selectorDomain.readSelector
+  selectorDomain.readSelector, app.container.resolve('getAccounts')
 );
 const deleteSelectorController = new DeleteSelectorController(
-  selectorDomain.deleteSelector
+  selectorDomain.deleteSelector, app.container.resolve('getAccounts')
 );
 const createAlertController = new CreateAlertController(
-  selectorDomain.createAlert
+  selectorDomain.createAlert, app.container.resolve('getAccounts')
 );
 
 selectorRoutes.post('/', (req, res) =>

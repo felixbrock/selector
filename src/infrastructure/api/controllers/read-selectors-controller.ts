@@ -1,19 +1,28 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
+import { GetAccounts } from '../../../domain/account-api/get-accounts';
 import {
   ReadSelectors,
+  ReadSelectorsAuthDto,
   ReadSelectorsRequestDto,
   ReadSelectorsResponseDto,
 } from '../../../domain/selector/read-selectors';
 import Result from '../../../domain/value-types/transient-types/result';
-import { BaseController, CodeHttp } from '../../shared/base-controller';
+import {
+  BaseController,
+  CodeHttp,
+  UserAccountInfo,
+} from '../../shared/base-controller';
 
 export default class ReadSelectorsController extends BaseController {
   #readSelectors: ReadSelectors;
 
-  public constructor(readSelectors: ReadSelectors) {
+  #getAccounts: GetAccounts;
+
+  public constructor(readSelectors: ReadSelectors, getAccounts: GetAccounts) {
     super();
     this.#readSelectors = readSelectors;
+    this.#getAccounts = getAccounts;
   }
 
   #buildRequestDto = (
@@ -46,8 +55,6 @@ export default class ReadSelectorsController extends BaseController {
     try {
       return Result.ok<ReadSelectorsRequestDto>({
         content: typeof content === 'string' ? content : undefined,
-        organizationId:
-          typeof organizationId === 'string' ? organizationId : undefined,
         systemId: typeof systemId === 'string' ? systemId : undefined,
         alert: {
           createdOnStart:
@@ -107,8 +114,31 @@ export default class ReadSelectorsController extends BaseController {
     return Date.parse(`${year}-${month}-${day}T${hour}:${minute}:${second}Z`);
   };
 
+  #buildAuthDto = (userAccountInfo: UserAccountInfo): ReadSelectorsAuthDto => ({
+    organizationId: userAccountInfo.organizationId,
+  });
+
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
+      const token = req.headers.authorization;
+
+      if (!token)
+        return ReadSelectorsController.unauthorized(res, 'Unauthorized');
+
+      const getUserAccountInfoResult: Result<UserAccountInfo> =
+        await ReadSelectorsController.getUserAccountInfo(
+          token,
+          this.#getAccounts
+        );
+
+      if (!getUserAccountInfoResult.success)
+        return ReadSelectorsController.unauthorized(
+          res,
+          getUserAccountInfoResult.error
+        );
+      if (!getUserAccountInfoResult.value)
+        throw new Error('Authorization failed');
+
       const buildDtoResult: Result<ReadSelectorsRequestDto> =
         this.#buildRequestDto(req);
 
@@ -120,8 +150,12 @@ export default class ReadSelectorsController extends BaseController {
           'Invalid request query paramerters'
         );
 
+      const authDto: ReadSelectorsAuthDto = this.#buildAuthDto(
+        getUserAccountInfoResult.value
+      );
+
       const useCaseResult: ReadSelectorsResponseDto =
-        await this.#readSelectors.execute(buildDtoResult.value);
+        await this.#readSelectors.execute(buildDtoResult.value, authDto);
 
       if (useCaseResult.error) {
         return ReadSelectorsController.badRequest(res, useCaseResult.error);

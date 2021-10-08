@@ -8,10 +8,15 @@ export interface DeleteSelectorsRequestDto {
   systemId: string;
 }
 
+export interface DeleteSelectorsAuthDto {
+  organizationId: string;
+  jwt: string;
+}
+
 export type DeleteSelectorsResponseDto = Result<null>;
 
 export class DeleteSelectors
-  implements IUseCase<DeleteSelectorsRequestDto, DeleteSelectorsResponseDto>
+  implements IUseCase<DeleteSelectorsRequestDto, DeleteSelectorsResponseDto, DeleteSelectorsAuthDto>
 {
   #deleteSelector: DeleteSelector;
 
@@ -26,12 +31,13 @@ export class DeleteSelectors
   }
 
   public async execute(
-    request: DeleteSelectorsRequestDto
+    request: DeleteSelectorsRequestDto,
+    auth: DeleteSelectorsAuthDto
   ): Promise<DeleteSelectorsResponseDto> {
     try {
       // read Selectors
       const readSelectorsResult: Result<SelectorDto[] | null> =
-        await this.#readSelectors.execute({ systemId: request.systemId });
+        await this.#readSelectors.execute({ systemId: request.systemId }, {organizationId: auth.organizationId});
 
       if (readSelectorsResult.error) throw new Error(readSelectorsResult.error);
       if (!readSelectorsResult.value)
@@ -39,7 +45,7 @@ export class DeleteSelectors
 
       const deletionResults = await Promise.all(
         readSelectorsResult.value.map(async (selectorDto) =>
-        this.#deleteSelector.execute({ id: selectorDto.id })
+        this.#deleteSelector.execute({ id: selectorDto.id }, {organizationId: auth.organizationId, jwt: auth.jwt})
         )
       );
 
@@ -50,7 +56,7 @@ export class DeleteSelectors
         );
 
       return Result.ok<null>();
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<null>(typeof error === 'string' ? error : error.message);
     }
   }

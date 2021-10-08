@@ -1,28 +1,69 @@
 // TODO: Violation of control flow. DI for express instead
 import { Request, Response } from 'express';
-import { CreateSelector, CreateSelectorRequestDto, CreateSelectorResponseDto } from '../../../domain/selector/create-selector';
-import { BaseController, CodeHttp } from '../../shared/base-controller';
+import { GetAccounts } from '../../../domain/account-api/get-accounts';
+import {
+  CreateSelector,
+  CreateSelectorAuthDto,
+  CreateSelectorRequestDto,
+  CreateSelectorResponseDto,
+} from '../../../domain/selector/create-selector';
+import Result from '../../../domain/value-types/transient-types/result';
+import {
+  BaseController,
+  CodeHttp,
+  UserAccountInfo,
+} from '../../shared/base-controller';
 
 export default class CreateSelectorController extends BaseController {
   #createSelector: CreateSelector;
 
-  public constructor(createSelector: CreateSelector) {
+  #getAccounts: GetAccounts;
+
+  public constructor(createSelector: CreateSelector, getAccounts: GetAccounts) {
     super();
     this.#createSelector = createSelector;
+    this.#getAccounts = getAccounts;
   }
 
   #buildRequestDto = (httpRequest: Request): CreateSelectorRequestDto => ({
     systemId: httpRequest.body.systemId,
     content: httpRequest.body.content,
-    organizationId: httpRequest.body.organizationId
+  });
+
+  #buildAuthDto = (
+    userAccountInfo: UserAccountInfo
+  ): CreateSelectorAuthDto => ({
+    organizationId: userAccountInfo.organizationId,
   });
 
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
-      const requestDto: CreateSelectorRequestDto =
-        this.#buildRequestDto(req);
+      const token = req.headers.authorization;
+
+      if (!token)
+        return CreateSelectorController.unauthorized(res, 'Unauthorized');
+
+      const getUserAccountInfoResult: Result<UserAccountInfo> =
+        await CreateSelectorController.getUserAccountInfo(
+          token,
+          this.#getAccounts
+        );
+
+      if (!getUserAccountInfoResult.success)
+        return CreateSelectorController.unauthorized(
+          res,
+          getUserAccountInfoResult.error
+        );
+      if (!getUserAccountInfoResult.value)
+        throw new Error('Authorization failed');
+
+      const requestDto: CreateSelectorRequestDto = this.#buildRequestDto(req);
+      const authDto: CreateSelectorAuthDto = this.#buildAuthDto(
+        getUserAccountInfoResult.value
+      );
+
       const useCaseResult: CreateSelectorResponseDto =
-        await this.#createSelector.execute(requestDto);
+        await this.#createSelector.execute(requestDto, authDto);
 
       if (useCaseResult.error) {
         return CreateSelectorController.badRequest(res, useCaseResult.error);

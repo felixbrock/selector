@@ -8,10 +8,14 @@ export interface GetSystemRequestDto {
   id: string;
 }
 
+export interface GetSystemAuthDto {
+  jwt: string;
+}
+
 export type GetSystemResponseDto = Result<SystemDto | null>;
 
 export class GetSystem
-  implements IUseCase<GetSystemRequestDto, GetSystemResponseDto>
+  implements IUseCase<GetSystemRequestDto, GetSystemResponseDto, GetSystemAuthDto>
 {
   #systemApiRepository: ISystemApiRepository;
 
@@ -20,11 +24,12 @@ export class GetSystem
   }
 
   public async execute(
-    request: GetSystemRequestDto
+    request: GetSystemRequestDto,
+    auth: GetSystemAuthDto
   ): Promise<GetSystemResponseDto> {
     try {
       const getSystemResult: SystemDto | null =
-        await this.#systemApiRepository.getOne(request.id);
+        await this.#systemApiRepository.getOne(request.id, auth.jwt);
 
       if (!getSystemResult)
         throw new Error(
@@ -32,7 +37,7 @@ export class GetSystem
         );
 
       return Result.ok<SystemDto>(getSystemResult);
-    } catch (error) {
+    } catch (error: any) {
       return Result.fail<SystemDto>(typeof error === 'string' ? error : error.message);
     }
   }

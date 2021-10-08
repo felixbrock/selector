@@ -8,39 +8,38 @@ import Result from '../value-types/transient-types/result';
 import { Alert } from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
 import { Selector } from '../entities/selector';
-import {
-  GetOrganization,
-  GetOrganizationDto,
-} from '../account-api/get-organization';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
 
 export interface UpdateSelectorRequestDto {
   id: string;
   content?: string;
-  organizationId?: string;
   alert?: AlertDto;
+}
+
+export interface UpdateSelectorAuthDto {
+  organizationId: string;
 }
 
 export type UpdateSelectorResponseDto = Result<SelectorDto | null>;
 
 export class UpdateSelector
-  implements IUseCase<UpdateSelectorRequestDto, UpdateSelectorResponseDto>
+  implements
+    IUseCase<
+      UpdateSelectorRequestDto,
+      UpdateSelectorResponseDto,
+      UpdateSelectorAuthDto
+    >
 {
   #selectorRepository: ISelectorRepository;
 
-  #getOrganization: GetOrganization;
-
-  public constructor(
-    selectorRepository: ISelectorRepository,
-    getOrganization: GetOrganization
-  ) {
+  public constructor(selectorRepository: ISelectorRepository) {
     this.#selectorRepository = selectorRepository;
-    this.#getOrganization = getOrganization;
   }
 
   public async execute(
-    request: UpdateSelectorRequestDto
+    request: UpdateSelectorRequestDto,
+    auth: UpdateSelectorAuthDto
   ): Promise<UpdateSelectorResponseDto> {
     try {
       const selector: Selector | null = await this.#selectorRepository.findOne(
@@ -49,6 +48,9 @@ export class UpdateSelector
 
       if (!selector)
         throw new Error(`Selector with id ${request.id} does not exist`);
+
+      if (selector.organizationId !== auth.organizationId)
+        throw new Error('Not authorized to perform action');
 
       const updateDto = await this.#buildUpdateDto(request);
 
@@ -81,18 +83,6 @@ export class UpdateSelector
         );
 
       updateDto.content = request.content;
-    }
-
-    if (request.organizationId) {
-      const readOrganizationResult: Result<GetOrganizationDto | null> =
-        await this.#getOrganization.execute({ id: request.organizationId });
-
-      if (!readOrganizationResult.value)
-        throw new Error(
-          `System's organization ${request.organizationId} does not exist`
-        );
-
-      updateDto.organizationId = request.organizationId;
     }
 
     if (request.alert) {

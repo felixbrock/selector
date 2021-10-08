@@ -12,10 +12,16 @@ export interface CreateAlertRequestDto {
   selectorId: string;
 }
 
+export interface CreateAlertAuthDto {
+  organizationId: string;
+  jwt: string;
+}
+
 export type CreateAlertResponseDto = Result<AlertDto | null>;
 
 export class CreateAlert
-  implements IUseCase<CreateAlertRequestDto, CreateAlertResponseDto>
+  implements
+    IUseCase<CreateAlertRequestDto, CreateAlertResponseDto, CreateAlertAuthDto>
 {
   #selectorRepository: ISelectorRepository;
 
@@ -34,7 +40,8 @@ export class CreateAlert
   }
 
   public async execute(
-    request: CreateAlertRequestDto
+    request: CreateAlertRequestDto,
+    auth: CreateAlertAuthDto
   ): Promise<CreateAlertResponseDto> {
     const alert: Result<Alert | null> = this.#createAlert();
     if (!alert.value) return alert;
@@ -47,13 +54,19 @@ export class CreateAlert
           `Selector with id ${request.selectorId} does not exist`
         );
 
+      if (selectorDto.organizationId !== auth.organizationId)
+        throw new Error(`Not authorized to perform action`);
+
       const alertDto = buildAlertDto(alert.value);
 
       const updateSelectorResult: Result<SelectorDto | null> =
-        await this.#updateSelector.execute({
-          id: request.selectorId,
-          alert: alertDto,
-        });
+        await this.#updateSelector.execute(
+          {
+            id: request.selectorId,
+            alert: alertDto,
+          },
+          { organizationId: auth.organizationId }
+        );
 
       if (updateSelectorResult.error)
         throw new Error(updateSelectorResult.error);
@@ -61,10 +74,13 @@ export class CreateAlert
         throw new Error(`Couldn't update selector ${request.selectorId}`);
 
       const postWarningResult: Result<WarningDto | null> =
-        await this.#postWarning.execute({
-          systemId: selectorDto.systemId,
-          selectorId: selectorDto.id
-        });
+        await this.#postWarning.execute(
+          {
+            systemId: selectorDto.systemId,
+            selectorId: selectorDto.id,
+          },
+          { jwt: auth.jwt }
+        );
 
       if (postWarningResult.error) throw new Error(postWarningResult.error);
       if (!postWarningResult.value)
@@ -74,7 +90,9 @@ export class CreateAlert
 
       return Result.ok<AlertDto>(alertDto);
     } catch (error: any) {
-      return Result.fail<AlertDto>(typeof error === 'string' ? error : error.message);
+      return Result.fail<AlertDto>(
+        typeof error === 'string' ? error : error.message
+      );
     }
   }
 
