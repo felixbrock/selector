@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import ISystemApiRepository from '../../domain/system-api/i-system-api-repository';
 import SystemDto from '../../domain/system-api/system-dto';
 import WarningDto from '../../domain/system-api/warning-dto';
@@ -11,11 +11,18 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
 
   #port = '3002';
 
-  public getOne = async (systemId: string): Promise<SystemDto | null> => {
+  public getOne = async (
+    systemId: string,
+    jwt: string
+  ): Promise<SystemDto | null> => {
     try {
       const apiRoot = await getRoot(this.#serviceName, this.#port, this.#path);
 
-      const response = await axios.get(`${apiRoot}/system/${systemId}`);
+      const config: AxiosRequestConfig = {
+        headers: { Authorization: `Bearer ${jwt}` },
+      };
+
+      const response = await axios.get(`${apiRoot}/system/${systemId}`, config);
       const jsonResponse = response.data;
       if (response.status === 200) return jsonResponse;
       throw new Error(jsonResponse);
@@ -26,14 +33,20 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
 
   public postWarning = async (
     systemId: string,
-    selectorId: string
+    selectorId: string,
+    jwt: string
   ): Promise<WarningDto | null> => {
     try {
       const apiRoot = await getRoot(this.#serviceName, this.#port, this.#path);
 
+      const config: AxiosRequestConfig = {
+        headers: { Authorization: `Bearer ${jwt}` },
+      };
+
       const response = await axios.post(
         `${apiRoot}/system/${systemId}/warning`,
-        { selectorId }
+        { selectorId },
+        config
       );
       const jsonResponse = response.data;
       if (response.status === 201) return jsonResponse;
