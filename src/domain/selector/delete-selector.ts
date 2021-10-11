@@ -2,7 +2,7 @@ import Result from '../value-types/transient-types/result';
 import IUseCase from '../services/use-case';
 import { ISelectorRepository } from './i-selector-repository';
 import { DeleteSubscriptions } from '../automation-api/delete-subscriptions';
-import { Selector } from '../entities/selector';
+import { ReadSelector } from './read-selector';
 
 export interface DeleteSelectorRequestDto {
   id: string;
@@ -27,12 +27,16 @@ export class DeleteSelector
 
   #deleteSubscriptions: DeleteSubscriptions;
 
+  #readSelector: ReadSelector;
+
   public constructor(
     selectorRepository: ISelectorRepository,
-    deleteSubscriptions: DeleteSubscriptions
+    deleteSubscriptions: DeleteSubscriptions,
+    readSelector: ReadSelector
   ) {
     this.#selectorRepository = selectorRepository;
     this.#deleteSubscriptions = deleteSubscriptions;
+    this.#readSelector = readSelector;
   }
 
   public async execute(
@@ -40,13 +44,20 @@ export class DeleteSelector
     auth: DeleteSelectorAuthDto
   ): Promise<DeleteSelectorResponseDto> {
     try {
-      const selector: Selector | null = await this.#selectorRepository.findOne(
-        request.id
+      const readSelectorResult = await this.#readSelector.execute(
+        { id: request.id },
+        { organizationId: auth.organizationId }
       );
-      if (!selector)
+
+      if (!readSelectorResult.value)
+        throw new Error('Selector deletion failed');
+      if (!readSelectorResult.success)
+        throw new Error(readSelectorResult.error);
+
+      if (!readSelectorResult.value)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
-      if (selector.organizationId !== auth.organizationId)
+      if (readSelectorResult.value.organizationId !== auth.organizationId)
         throw new Error('Not authorized to perform action');
 
       const deleteSubscriptionsResult: Result<null> =

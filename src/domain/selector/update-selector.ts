@@ -1,5 +1,5 @@
 import IUseCase from '../services/use-case';
-import { buildSelectorDto, SelectorDto } from './selector-dto';
+import { SelectorDto } from './selector-dto';
 import {
   ISelectorRepository,
   SelectorUpdateDto,
@@ -7,7 +7,7 @@ import {
 import Result from '../value-types/transient-types/result';
 import { Alert } from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
-import { Selector } from '../entities/selector';
+import { ReadSelector } from './read-selector';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
 
@@ -33,8 +33,11 @@ export class UpdateSelector
 {
   #selectorRepository: ISelectorRepository;
 
-  public constructor(selectorRepository: ISelectorRepository) {
+  #readSelector: ReadSelector;
+
+  public constructor(selectorRepository: ISelectorRepository, readSelector: ReadSelector) {
     this.#selectorRepository = selectorRepository;
+    this.#readSelector = readSelector;
   }
 
   public async execute(
@@ -42,14 +45,20 @@ export class UpdateSelector
     auth: UpdateSelectorAuthDto
   ): Promise<UpdateSelectorResponseDto> {
     try {
-      const selector: Selector | null = await this.#selectorRepository.findOne(
-        request.id
+      const readSelectorResult = await this.#readSelector.execute(
+        { id: request.id },
+        { organizationId: auth.organizationId }
       );
 
-      if (!selector)
+      if (!readSelectorResult.value)
+        throw new Error('Selector deletion failed');
+      if (!readSelectorResult.success)
+        throw new Error(readSelectorResult.error);
+
+      if (!readSelectorResult.value)
         throw new Error(`Selector with id ${request.id} does not exist`);
 
-      if (selector.organizationId !== auth.organizationId)
+      if (readSelectorResult.value.organizationId !== auth.organizationId)
         throw new Error('Not authorized to perform action');
 
       const updateDto = await this.#buildUpdateDto(request);
@@ -61,7 +70,7 @@ export class UpdateSelector
 
       if (updateResult.error) throw new Error(updateResult.error);
 
-      return Result.ok<SelectorDto>(buildSelectorDto(selector));
+      return Result.ok<SelectorDto>(readSelectorResult.value);
     } catch (error: any) {
       return Result.fail<SelectorDto>(
         typeof error === 'string' ? error : error.message
