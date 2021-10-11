@@ -48,14 +48,16 @@ export default class CreateAlertController extends BaseController {
 
   protected async executeImpl(req: Request, res: Response): Promise<Response> {
     try {
-      const token = req.headers.authorization;
+      const authHeader = req.headers.authorization;
 
-      if (!token)
+      if (!authHeader)
         return CreateAlertController.unauthorized(res, 'Unauthorized');
+
+      const jwt = authHeader.split(' ')[1];     
 
       const getUserAccountInfoResult: Result<UserAccountInfo> =
         await CreateAlertController.getUserAccountInfo(
-          token,
+          jwt,
           this.#getAccounts
         );
 
@@ -80,7 +82,7 @@ export default class CreateAlertController extends BaseController {
 
       const authDto: CreateAlertAuthDto = this.#buildAuthDto(
         getUserAccountInfoResult.value,
-        token
+        jwt
       );
 
       const useCaseResult: CreateAlertResponseDto =
