@@ -4,9 +4,9 @@ import { Alert } from '../value-types/alert';
 import { AlertDto, buildAlertDto } from './alert-dto';
 import { SelectorDto } from '../selector/selector-dto';
 import { UpdateSelector } from '../selector/update-selector';
-import { ISelectorRepository } from '../selector/i-selector-repository';
 import { PostWarning } from '../system-api/post-warning';
 import WarningDto from '../system-api/warning-dto';
+import { ReadSelector } from '../selector/read-selector';
 
 export interface CreateAlertRequestDto {
   selectorId: string;
@@ -23,20 +23,20 @@ export class CreateAlert
   implements
     IUseCase<CreateAlertRequestDto, CreateAlertResponseDto, CreateAlertAuthDto>
 {
-  #selectorRepository: ISelectorRepository;
-
   #updateSelector: UpdateSelector;
 
   #postWarning: PostWarning;
 
+  #readSelector: ReadSelector;
+
   public constructor(
-    selectorRepository: ISelectorRepository,
     updateSelector: UpdateSelector,
+    readSelector: ReadSelector,
     postWarning: PostWarning
   ) {
-    this.#selectorRepository = selectorRepository;
     this.#updateSelector = updateSelector;
     this.#postWarning = postWarning;
+    this.#readSelector = readSelector;
   }
 
   public async execute(
@@ -47,15 +47,19 @@ export class CreateAlert
     if (!alert.value) return alert;
 
     try {
-      const selectorDto: SelectorDto | null =
-        await this.#selectorRepository.findOne(request.selectorId);
-      if (!selectorDto)
-        throw new Error(
-          `Selector with id ${request.selectorId} does not exist`
-        );
+      const readSelectorResult = await this.#readSelector.execute(
+        { id: request.selectorId },
+        { organizationId: auth.organizationId }
+      );
 
-      if (selectorDto.organizationId !== auth.organizationId)
-        throw new Error(`Not authorized to perform action`);
+      if (!readSelectorResult.success)
+        throw new Error(readSelectorResult.error);
+
+      if (!readSelectorResult.value)
+        throw new Error(`Selector with id ${request.selectorId} does not exist`);
+
+      if (readSelectorResult.value.organizationId !== auth.organizationId)
+        throw new Error('Not authorized to perform action');
 
       const alertDto = buildAlertDto(alert.value);
 
@@ -76,8 +80,8 @@ export class CreateAlert
       const postWarningResult: Result<WarningDto | null> =
         await this.#postWarning.execute(
           {
-            systemId: selectorDto.systemId,
-            selectorId: selectorDto.id,
+            systemId: readSelectorResult.value.systemId,
+            selectorId: readSelectorResult.value.id,
           },
           { jwt: auth.jwt }
         );
@@ -85,7 +89,7 @@ export class CreateAlert
       if (postWarningResult.error) throw new Error(postWarningResult.error);
       if (!postWarningResult.value)
         throw new Error(
-          `Couldn't create warning for system ${selectorDto.systemId}`
+          `Couldn't create warning for system ${readSelectorResult.value.systemId}`
         );
 
       return Result.ok<AlertDto>(alertDto);

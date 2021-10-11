@@ -49,8 +49,6 @@ export class DeleteSelector
         { organizationId: auth.organizationId }
       );
 
-      if (!readSelectorResult.value)
-        throw new Error('Selector deletion failed');
       if (!readSelectorResult.success)
         throw new Error(readSelectorResult.error);
 

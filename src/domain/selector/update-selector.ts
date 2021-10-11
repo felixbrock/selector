@@ -8,6 +8,7 @@ import Result from '../value-types/transient-types/result';
 import { Alert } from '../value-types/alert';
 import { AlertDto } from '../alert/alert-dto';
 import { ReadSelector } from './read-selector';
+import { ReadSelectors, ReadSelectorsResponseDto } from './read-selectors';
 
 // TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
 
@@ -35,9 +36,16 @@ export class UpdateSelector
 
   #readSelector: ReadSelector;
 
-  public constructor(selectorRepository: ISelectorRepository, readSelector: ReadSelector) {
+  #readSelectors: ReadSelectors;
+
+  public constructor(
+    selectorRepository: ISelectorRepository,
+    readSelector: ReadSelector,
+    readSelectors: ReadSelectors
+  ) {
     this.#selectorRepository = selectorRepository;
     this.#readSelector = readSelector;
+    this.#readSelectors = readSelectors;
   }
 
   public async execute(
@@ -61,7 +69,10 @@ export class UpdateSelector
       if (readSelectorResult.value.organizationId !== auth.organizationId)
         throw new Error('Not authorized to perform action');
 
-      const updateDto = await this.#buildUpdateDto(request);
+      const updateDto = await this.#buildUpdateDto(
+        request,
+        auth.organizationId
+      );
 
       const updateResult = await this.#selectorRepository.updateOne(
         request.id,
@@ -79,16 +90,27 @@ export class UpdateSelector
   }
 
   #buildUpdateDto = async (
-    request: UpdateSelectorRequestDto
+    request: UpdateSelectorRequestDto,
+    organizationId: string
   ): Promise<SelectorUpdateDto> => {
     const updateDto: SelectorUpdateDto = {};
 
     if (request.content) {
-      const readSelectorResult: SelectorDto[] =
-        await this.#selectorRepository.findBy({ content: request.content });
-      if (readSelectorResult.length)
+      const readSelectorResult: ReadSelectorsResponseDto =
+        await this.#readSelectors.execute(
+          {
+            content: request.content,
+          },
+          { organizationId }
+        );
+
+      if (!readSelectorResult.success)
+        throw new Error(readSelectorResult.error);
+      if (!readSelectorResult.value)
+        throw new Error('Reading selectors failed');
+      if (readSelectorResult.value.length)
         throw new Error(
-          `Selector ${readSelectorResult[0].content} is already registered under ${readSelectorResult[0].id}`
+          `Selector ${readSelectorResult.value[0].content} is already registered under ${readSelectorResult.value[0].id}`
         );
 
       updateDto.content = request.content;
