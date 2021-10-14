@@ -6,6 +6,7 @@ import {
   ObjectId,
   UpdateResult,
 } from 'mongodb';
+import sanitize from 'mongo-sanitize';
 import { Selector, SelectorProperties } from '../../domain/entities/selector';
 import {
   ISelectorRepository,
@@ -39,7 +40,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     const db = await connect(client);
     const result: any = await db
       .collection(collectionName)
-      .findOne({ _id: new ObjectId(id) });
+      .findOne({ _id: new ObjectId(sanitize(id)) });
 
     close(client);
 
@@ -57,7 +58,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     const db = await connect(client);
     const result: FindCursor = await db
       .collection(collectionName)
-      .find(this.#buildFilter(selectorQueryDto));
+      .find(this.#buildFilter(sanitize(selectorQueryDto)));
     const results = await result.toArray();
 
     close(client);
@@ -120,7 +121,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       const db = await connect(client);
       const result: InsertOneResult<Document> = await db
         .collection(collectionName)
-        .insertOne(this.#toPersistence(selector));
+        .insertOne(this.#toPersistence(sanitize(selector)));
 
       if (!result.acknowledged)
         throw new Error('Selector creation failed. Insert not acknowledged');
@@ -146,8 +147,8 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       const result: Document | UpdateResult = await db
         .collection(collectionName)
         .updateOne(
-          { _id: new ObjectId(id) },
-          this.#buildUpdateFilter(updateDto)
+          { _id: new ObjectId(sanitize(id)) },
+          this.#buildUpdateFilter(sanitize(updateDto))
         );
 
       if (!result.acknowledged)
@@ -194,7 +195,7 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
       const db = await connect(client);
       const result: DeleteResult = await db
         .collection(collectionName)
-        .deleteOne({ _id: new ObjectId(id) });
+        .deleteOne({ _id: new ObjectId(sanitize(id)) });
 
       if (!result.acknowledged)
         throw new Error('Selector delete failed. Delete not acknowledged');
