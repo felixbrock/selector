@@ -163,6 +163,9 @@ Development environment - this one is also simple, it's environment on developer
 Successful branching
 https://nvie.com/posts/a-successful-git-branching-model/
 
+https://www.acunetix.com/blog/web-security-zone/nosql-injections/
+In the case of MongoDB, never use where, mapReduce, or group operators with user input because these operators allow the attacker to inject JavaScript and are therefore much more dangerous than others. For extra safety, set javascriptEnabled to false in mongod.conf, if possible.
+
 
 
 
