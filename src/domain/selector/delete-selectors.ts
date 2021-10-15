@@ -16,7 +16,12 @@ export interface DeleteSelectorsAuthDto {
 export type DeleteSelectorsResponseDto = Result<string>;
 
 export class DeleteSelectors
-  implements IUseCase<DeleteSelectorsRequestDto, DeleteSelectorsResponseDto, DeleteSelectorsAuthDto>
+  implements
+    IUseCase<
+      DeleteSelectorsRequestDto,
+      DeleteSelectorsResponseDto,
+      DeleteSelectorsAuthDto
+    >
 {
   #deleteSelector: DeleteSelector;
 
@@ -36,15 +41,22 @@ export class DeleteSelectors
   ): Promise<DeleteSelectorsResponseDto> {
     try {
       const readSelectorsResult: Result<SelectorDto[]> =
-        await this.#readSelectors.execute({ systemId: request.systemId }, {organizationId: auth.organizationId});
+        await this.#readSelectors.execute(
+          { systemId: request.systemId },
+          { organizationId: auth.organizationId }
+        );
 
-      if (readSelectorsResult.error) throw new Error(readSelectorsResult.error);
+      if (!readSelectorsResult.success)
+        throw new Error(readSelectorsResult.error);
       if (!readSelectorsResult.value)
         throw new Error(`Couldn't read selectors`);
 
       const deletionResults = await Promise.all(
         readSelectorsResult.value.map(async (selectorDto) =>
-        this.#deleteSelector.execute({ id: selectorDto.id }, {organizationId: auth.organizationId, jwt: auth.jwt})
+          this.#deleteSelector.execute(
+            { id: selectorDto.id },
+            { organizationId: auth.organizationId, jwt: auth.jwt }
+          )
         )
       );
 
@@ -54,10 +66,12 @@ export class DeleteSelectors
           `Deletion of selectors referencing system ${request.systemId} failed. Please try again`
         );
 
-      return Result.ok(`Number of selectors deleted: ${deletionResults.length}`);
+      return Result.ok(
+        `Number of selectors deleted: ${deletionResults.length}`
+      );
     } catch (error: unknown) {
-      if(typeof error === 'string') return Result.fail(error);
-      if(error instanceof Error) return Result.fail(error.message);
+      if (typeof error === 'string') return Result.fail(error);
+      if (error instanceof Error) return Result.fail(error.message);
       return Result.fail('Unknown error occured');
     }
   }

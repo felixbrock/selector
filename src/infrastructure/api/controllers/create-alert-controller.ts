@@ -74,7 +74,7 @@ export default class CreateAlertController extends BaseController {
       const useCaseResult: CreateAlertResponseDto =
         await this.#createAlert.execute(buildDtoResult, authDto);
 
-      if (useCaseResult.error) {
+      if (!useCaseResult.success) {
         return CreateAlertController.badRequest(res, useCaseResult.error);
       }
 

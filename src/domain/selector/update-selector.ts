@@ -10,8 +10,6 @@ import { AlertDto } from '../alert/alert-dto';
 import { ReadSelector } from './read-selector';
 import { ReadSelectors, ReadSelectorsResponseDto } from './read-selectors';
 
-// TODO - This would be a PATCH use-case since not all fields need to be necessarily updated
-
 export interface UpdateSelectorRequestDto {
   id: string;
   content?: string;

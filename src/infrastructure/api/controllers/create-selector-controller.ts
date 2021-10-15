@@ -43,7 +43,7 @@ export default class CreateSelectorController extends BaseController {
       if (!authHeader)
         return CreateSelectorController.unauthorized(res, 'Unauthorized');
 
-      const jwt = authHeader.split(' ')[1];     
+      const jwt = authHeader.split(' ')[1];
 
       const getUserAccountInfoResult: Result<UserAccountInfo> =
         await CreateSelectorController.getUserAccountInfo(
@@ -67,7 +67,7 @@ export default class CreateSelectorController extends BaseController {
       const useCaseResult: CreateSelectorResponseDto =
         await this.#createSelector.execute(requestDto, authDto);
 
-      if (useCaseResult.error) {
+      if (!useCaseResult.success) {
         return CreateSelectorController.badRequest(res, useCaseResult.error);
       }
 

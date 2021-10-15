@@ -83,7 +83,7 @@ export default class DeleteSelectorsController extends BaseController {
       const useCaseResult: DeleteSelectorsResponseDto =
         await this.#deleteSelectors.execute(buildDtoResult, authDto);
 
-      if (useCaseResult.error) {
+      if (!useCaseResult.success) {
         return DeleteSelectorsController.badRequest(res, useCaseResult.error);
       }
 

@@ -73,7 +73,7 @@ export class CreateAlert
           { organizationId: auth.organizationId }
         );
 
-      if (updateSelectorResult.error)
+      if (!updateSelectorResult.success)
         throw new Error(updateSelectorResult.error);
       if (!updateSelectorResult.value)
         throw new Error(`Couldn't update selector ${request.selectorId}`);
@@ -87,7 +87,7 @@ export class CreateAlert
           { jwt: auth.jwt }
         );
 
-      if (postWarningResult.error) throw new Error(postWarningResult.error);
+      if (!postWarningResult.success) throw new Error(postWarningResult.error);
       if (!postWarningResult.value)
         throw new Error(
           `Couldn't create warning for system ${readSelectorResult.value.systemId}`

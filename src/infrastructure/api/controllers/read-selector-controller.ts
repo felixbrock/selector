@@ -65,7 +65,7 @@ export default class ReadSelectorController extends BaseController {
       const useCaseResult: ReadSelectorResponseDto =
         await this.#readSelector.execute(requestDto, authDto);
 
-      if (useCaseResult.error) {
+      if (!useCaseResult.success) {
         return ReadSelectorController.badRequest(res, useCaseResult.error);
       }
 

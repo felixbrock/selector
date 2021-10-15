@@ -64,7 +64,7 @@ export class DeleteSelector
           { jwt: auth.jwt }
         );
 
-      if (deleteSubscriptionsResult.error)
+      if (!deleteSubscriptionsResult.success)
         throw new Error(deleteSubscriptionsResult.error);
 
       const deleteSelectorResult: string =
