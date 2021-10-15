@@ -29,11 +29,11 @@ export default class CreateAlertController extends BaseController {
     const { selectorId } = httpRequest.params;
 
     if (!selectorId)
-      return Result.fail<CreateAlertRequestDto>(
+      return Result.fail(
         'Cannot find request parameter selectorId'
       );
 
-    return Result.ok<CreateAlertRequestDto>({
+    return Result.ok({
       selectorId,
     });
   };
@@ -97,8 +97,12 @@ export default class CreateAlertController extends BaseController {
         useCaseResult.value,
         CodeHttp.CREATED
       );
-    } catch (error: any) {
-      return CreateAlertController.fail(res, error);
+    } catch (error: unknown) {
+      if (typeof error === 'string')
+        return CreateAlertController.fail(res, error);
+      if (error instanceof Error)
+        return CreateAlertController.fail(res, error);
+      return CreateAlertController.fail(res, 'Unknown error occured');
     }
   }
 }

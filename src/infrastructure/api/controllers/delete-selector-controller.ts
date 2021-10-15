@@ -74,8 +74,12 @@ export default class DeleteSelectorController extends BaseController {
       }
 
       return DeleteSelectorController.ok(res, useCaseResult.value, CodeHttp.OK);
-    } catch (error: any) {
-      return DeleteSelectorController.fail(res, error);
-    }
+    } catch (error: unknown) {
+      if (typeof error === 'string')
+        return DeleteSelectorController.fail(res, error);
+      if (error instanceof Error)
+        return DeleteSelectorController.fail(res, error);
+      return DeleteSelectorController.fail(res, 'Unknown error occured');
+    }  
   }
 }

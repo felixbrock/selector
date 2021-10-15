@@ -13,7 +13,7 @@ export interface DeleteSelectorsAuthDto {
   jwt: string;
 }
 
-export type DeleteSelectorsResponseDto = Result<null>;
+export type DeleteSelectorsResponseDto = Result<string>;
 
 export class DeleteSelectors
   implements IUseCase<DeleteSelectorsRequestDto, DeleteSelectorsResponseDto, DeleteSelectorsAuthDto>
@@ -36,7 +36,7 @@ export class DeleteSelectors
   ): Promise<DeleteSelectorsResponseDto> {
     try {
       // read Selectors
-      const readSelectorsResult: Result<SelectorDto[] | null> =
+      const readSelectorsResult: Result<SelectorDto[]> =
         await this.#readSelectors.execute({ systemId: request.systemId }, {organizationId: auth.organizationId});
 
       if (readSelectorsResult.error) throw new Error(readSelectorsResult.error);
@@ -55,9 +55,11 @@ export class DeleteSelectors
           `Deletion of selectors referencing system ${request.systemId} failed. Please try again`
         );
 
-      return Result.ok<null>();
-    } catch (error: any) {
-      return Result.fail<null>(typeof error === 'string' ? error : error.message);
+      return Result.ok(`Number of selectors deleted: ${deletionResults.length}`);
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 }

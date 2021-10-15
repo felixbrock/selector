@@ -16,7 +16,7 @@ export interface CreateSelectorAuthDto {
   organizationId: string;
 }
 
-export type CreateSelectorResponseDto = Result<SelectorDto | null>;
+export type CreateSelectorResponseDto = Result<SelectorDto>;
 
 export class CreateSelector
   implements
@@ -42,7 +42,7 @@ export class CreateSelector
     request: CreateSelectorRequestDto,
     auth: CreateSelectorAuthDto
   ): Promise<CreateSelectorResponseDto> {
-    const selector: Result<Selector | null> = this.#createSelector(
+    const selector: Result<Selector> = this.#createSelector(
       request,
       auth.organizationId
     );
@@ -68,18 +68,18 @@ export class CreateSelector
 
       await this.#selectorRepository.insertOne(selector.value);
 
-      return Result.ok<SelectorDto>(buildSelectorDto(selector.value));
-    } catch (error: any) {
-      return Result.fail<SelectorDto>(
-        typeof error === 'string' ? error : error.message
-      );
+      return Result.ok(buildSelectorDto(selector.value));
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 
   #createSelector = (
     request: CreateSelectorRequestDto,
     organizationId: string
-  ): Result<Selector | null> => {
+  ): Result<Selector> => {
     const selectorProperties: SelectorProperties = {
       id: new ObjectId().toHexString(),
       content: request.content,

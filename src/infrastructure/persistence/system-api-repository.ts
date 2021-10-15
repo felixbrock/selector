@@ -14,7 +14,7 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
   public getOne = async (
     systemId: string,
     jwt: string
-  ): Promise<SystemDto | null> => {
+  ): Promise<SystemDto> => {
     try {
       const apiRoot = await getRoot(this.#serviceName, this.#port, this.#path);
 
@@ -25,9 +25,11 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
       const response = await axios.get(`${apiRoot}/system/${systemId}`, config);
       const jsonResponse = response.data;
       if (response.status === 200) return jsonResponse;
-      throw new Error(jsonResponse);
-    } catch (error) {
-      return null;
+      throw new Error(jsonResponse.response.data.message);
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
     }
   };
 
@@ -35,7 +37,7 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
     systemId: string,
     selectorId: string,
     jwt: string
-  ): Promise<WarningDto | null> => {
+  ): Promise<WarningDto> => {
     try {
       const apiRoot = await getRoot(this.#serviceName, this.#port, this.#path);
 
@@ -50,9 +52,11 @@ export default class SystemApiRepositoryImpl implements ISystemApiRepository {
       );
       const jsonResponse = response.data;
       if (response.status === 201) return jsonResponse;
-      throw new Error(jsonResponse);
-    } catch (error) {
-      return null;
+      throw new Error(jsonResponse.response.data.message);
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
     }
   };
 }

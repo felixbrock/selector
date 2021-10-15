@@ -76,8 +76,12 @@ export default class CreateSelectorController extends BaseController {
         useCaseResult.value,
         CodeHttp.CREATED
       );
-    } catch (error: any) {
-      return CreateSelectorController.fail(res, error);
+    } catch (error: unknown) {
+      if (typeof error === 'string')
+        return CreateSelectorController.fail(res, error);
+      if (error instanceof Error)
+        return CreateSelectorController.fail(res, error);
+      return CreateSelectorController.fail(res, 'Unknown error occured');
     }
   }
 }

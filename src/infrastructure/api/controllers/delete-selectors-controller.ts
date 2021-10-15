@@ -33,10 +33,10 @@ export default class DeleteSelectorsController extends BaseController {
   ): Result<DeleteSelectorsRequestDto> => {
     const { systemId } = httpRequest.query;
     if (typeof systemId === 'string')
-      return Result.ok<DeleteSelectorsRequestDto>({
+      return Result.ok({
         systemId,
       });
-    return Result.fail<DeleteSelectorsRequestDto>(
+    return Result.fail(
       'request query parameter systemId is supposed to be in string format'
     );
   };
@@ -100,8 +100,12 @@ export default class DeleteSelectorsController extends BaseController {
         useCaseResult.value,
         CodeHttp.OK
       );
-    } catch (error: any) {
-      return DeleteSelectorsController.fail(res, error);
+    } catch (error: unknown) {
+      if (typeof error === 'string')
+        return DeleteSelectorsController.fail(res, error);
+      if (error instanceof Error)
+        return DeleteSelectorsController.fail(res, error);
+      return DeleteSelectorsController.fail(res, 'Unknown error occured');
     }
   }
 }

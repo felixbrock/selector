@@ -14,10 +14,10 @@ export interface IAutomationApiRepository {
   deleteSubscriptions(
     params: URLSearchParams,
     jwt: string
-  ): Promise<Result<null>>;
+  ): Promise<string>;
 }
 
-export type DeleteSubscriptionsResponseDto = Result<null>;
+export type DeleteSubscriptionsResponseDto = Result<string>;
 
 export class DeleteSubscriptions
   implements
@@ -38,21 +38,21 @@ export class DeleteSubscriptions
     auth: DeleteSubscriptionsAuthDto
   ): Promise<DeleteSubscriptionsResponseDto> {
     try {
-      const selectorResult: Result<null> =
+      const selectorResult: string =
         await this.#automationApiRepository.deleteSubscriptions(
           new URLSearchParams({ selectorId: request.selectorId }),
           auth.jwt
         );
       if (!selectorResult)
         throw new Error(
-          `No subscriptions for selector ${request.selectorId} exist`
+          `Subscriptions for selector ${request.selectorId} was not deleted. Unclear if subscription exists`
         );
 
-      return Result.ok<null>();
-    } catch (error: any) {
-      return Result.fail<null>(
-        typeof error === 'string' ? error : error.message
-      );
+      return Result.ok(selectorResult);
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 }

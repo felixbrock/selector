@@ -32,7 +32,7 @@ export class Selector {
   }
 
   public set content(content: string) {
-    if (!content) throw new Error('Selector content cannot be null');
+    if (!content) throw new Error('Selector must have content');
 
     this.#content = content;
   }
@@ -43,7 +43,7 @@ export class Selector {
 
   public set organizationId(organizationId: string) {
     if (!organizationId)
-      throw new Error('Selector organizationId cannot be null');
+      throw new Error('Selector must have organizationId');
 
     this.#organizationId = organizationId;
   }
@@ -75,14 +75,14 @@ export class Selector {
 
   public static create(properties: SelectorProperties): Result<Selector> {
     if (!properties.content)
-      return Result.fail<Selector>('Selector must have content');
+      return Result.fail('Selector must have content');
     if (!properties.organizationId)
-      return Result.fail<Selector>('Selector must have organizationId');
+      return Result.fail('Selector must have organizationId');
     if (!properties.systemId)
-      return Result.fail<Selector>('Selector must have system id');
-    if (!properties.id) return Result.fail<Selector>('Selector must have id');
+      return Result.fail('Selector must have system id');
+    if (!properties.id) return Result.fail('Selector must have id');
 
     const selector = new Selector(properties);
-    return Result.ok<Selector>(selector);
+    return Result.ok(selector);
   }
 }

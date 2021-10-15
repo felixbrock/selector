@@ -17,7 +17,7 @@ export interface CreateAlertAuthDto {
   jwt: string;
 }
 
-export type CreateAlertResponseDto = Result<AlertDto | null>;
+export type CreateAlertResponseDto = Result<AlertDto>;
 
 export class CreateAlert
   implements
@@ -43,7 +43,7 @@ export class CreateAlert
     request: CreateAlertRequestDto,
     auth: CreateAlertAuthDto
   ): Promise<CreateAlertResponseDto> {
-    const alert: Result<Alert | null> = this.#createAlert();
+    const alert: Result<Alert> = this.#createAlert();
     if (!alert.value) return alert;
 
     try {
@@ -56,14 +56,16 @@ export class CreateAlert
         throw new Error(readSelectorResult.error);
 
       if (!readSelectorResult.value)
-        throw new Error(`Selector with id ${request.selectorId} does not exist`);
+        throw new Error(
+          `Selector with id ${request.selectorId} does not exist`
+        );
 
       if (readSelectorResult.value.organizationId !== auth.organizationId)
         throw new Error('Not authorized to perform action');
 
       const alertDto = buildAlertDto(alert.value);
 
-      const updateSelectorResult: Result<SelectorDto | null> =
+      const updateSelectorResult: Result<SelectorDto> =
         await this.#updateSelector.execute(
           {
             id: request.selectorId,
@@ -77,7 +79,7 @@ export class CreateAlert
       if (!updateSelectorResult.value)
         throw new Error(`Couldn't update selector ${request.selectorId}`);
 
-      const postWarningResult: Result<WarningDto | null> =
+      const postWarningResult: Result<WarningDto> =
         await this.#postWarning.execute(
           {
             systemId: readSelectorResult.value.systemId,
@@ -92,13 +94,13 @@ export class CreateAlert
           `Couldn't create warning for system ${readSelectorResult.value.systemId}`
         );
 
-      return Result.ok<AlertDto>(alertDto);
-    } catch (error: any) {
-      return Result.fail<AlertDto>(
-        typeof error === 'string' ? error : error.message
-      );
+      return Result.ok(alertDto);
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Result.fail(error);
+      if (error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 
-  #createAlert = (): Result<Alert | null> => Alert.create({});
+  #createAlert = (): Result<Alert> => Alert.create({});
 }

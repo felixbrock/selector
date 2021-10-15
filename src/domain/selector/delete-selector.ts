@@ -13,7 +13,7 @@ export interface DeleteSelectorAuthDto {
   jwt: string;
 }
 
-export type DeleteSelectorResponseDto = Result<null>;
+export type DeleteSelectorResponseDto = Result<string>;
 
 export class DeleteSelector
   implements
@@ -58,7 +58,7 @@ export class DeleteSelector
       if (readSelectorResult.value.organizationId !== auth.organizationId)
         throw new Error('Not authorized to perform action');
 
-      const deleteSubscriptionsResult: Result<null> =
+      const deleteSubscriptionsResult: Result<string> =
         await this.#deleteSubscriptions.execute(
           { selectorId: request.id },
           { jwt: auth.jwt }
@@ -67,17 +67,14 @@ export class DeleteSelector
       if (deleteSubscriptionsResult.error)
         throw new Error(deleteSubscriptionsResult.error);
 
-      const deleteSelectorResult: Result<null> =
+      const deleteSelectorResult: string =
         await this.#selectorRepository.deleteOne(request.id);
 
-      if (deleteSelectorResult.error)
-        throw new Error(deleteSelectorResult.error);
-
-      return Result.ok<null>();
-    } catch (error: any) {
-      return Result.fail<null>(
-        typeof error === 'string' ? error : error.message
-      );
+      return Result.ok(deleteSelectorResult);
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 }

@@ -53,7 +53,7 @@ export default class ReadSelectorsController extends BaseController {
       );
 
     try {
-      return Result.ok<ReadSelectorsRequestDto>({
+      return Result.ok({
         content: typeof content === 'string' ? content : undefined,
         systemId: typeof systemId === 'string' ? systemId : undefined,
         alert: {
@@ -75,10 +75,10 @@ export default class ReadSelectorsController extends BaseController {
             ? this.#buildDate(modifiedOnEnd)
             : undefined,
       });
-    } catch (error: any) {
-      return Result.fail<ReadSelectorsRequestDto>(
-        typeof error === 'string' ? error : error.message
-      );
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Result.fail(error);
+      if (error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   };
 
@@ -125,7 +125,7 @@ export default class ReadSelectorsController extends BaseController {
       if (!authHeader)
         return ReadSelectorsController.unauthorized(res, 'Unauthorized');
 
-      const jwt = authHeader.split(' ')[1];     
+      const jwt = authHeader.split(' ')[1];
 
       const getUserAccountInfoResult: Result<UserAccountInfo> =
         await ReadSelectorsController.getUserAccountInfo(
@@ -164,8 +164,12 @@ export default class ReadSelectorsController extends BaseController {
       }
 
       return ReadSelectorsController.ok(res, useCaseResult.value, CodeHttp.OK);
-    } catch (error: any) {
-      return ReadSelectorsController.fail(res, error);
+    } catch (error: unknown) {
+      if (typeof error === 'string')
+        return ReadSelectorsController.fail(res, error);
+      if (error instanceof Error)
+        return ReadSelectorsController.fail(res, error);
+      return ReadSelectorsController.fail(res, 'Unknown error occured');
     }
   }
 }

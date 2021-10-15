@@ -12,7 +12,7 @@ export interface GetSystemAuthDto {
   jwt: string;
 }
 
-export type GetSystemResponseDto = Result<SystemDto | null>;
+export type GetSystemResponseDto = Result<SystemDto>;
 
 export class GetSystem
   implements IUseCase<GetSystemRequestDto, GetSystemResponseDto, GetSystemAuthDto>
@@ -28,7 +28,7 @@ export class GetSystem
     auth: GetSystemAuthDto
   ): Promise<GetSystemResponseDto> {
     try {
-      const getSystemResult: SystemDto | null =
+      const getSystemResult: SystemDto =
         await this.#systemApiRepository.getOne(request.id, auth.jwt);
 
       if (!getSystemResult)
@@ -36,9 +36,11 @@ export class GetSystem
           `No system found for id ${request.id}`
         );
 
-      return Result.ok<SystemDto>(getSystemResult);
-    } catch (error: any) {
-      return Result.fail<SystemDto>(typeof error === 'string' ? error : error.message);
+      return Result.ok(getSystemResult);
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 }

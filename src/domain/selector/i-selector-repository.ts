@@ -1,6 +1,5 @@
 import { Selector } from '../entities/selector';
 import { Alert } from '../value-types/alert';
-import Result from '../value-types/transient-types/result';
 
 export interface SelectorQueryDto {
   systemId?: string;
@@ -28,7 +27,7 @@ export interface ISelectorRepository {
   findOne(id: string): Promise<Selector | null>;
   findBy(selectorQueryDto: SelectorQueryDto): Promise<Selector[]>;
   all(): Promise<Selector[]>;
-  updateOne(id: string, updateDto: SelectorUpdateDto): Promise<Result<null>>;
-  insertOne(selector: Selector): Promise<Result<null>>;
-  deleteOne(id: string): Promise<Result<null>>;
+  updateOne(id: string, updateDto: SelectorUpdateDto): Promise<string>;
+  insertOne(selector: Selector): Promise<string>;
+  deleteOne(id: string): Promise<string>;
 }

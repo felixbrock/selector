@@ -70,8 +70,12 @@ export default class ReadSelectorController extends BaseController {
       }
 
       return ReadSelectorController.ok(res, useCaseResult.value, CodeHttp.OK);
-    } catch (error: any) {
-      return ReadSelectorController.fail(res, error);
+    } catch (error: unknown) {
+      if (typeof error === 'string')
+        return ReadSelectorController.fail(res, error);
+      if (error instanceof Error)
+        return ReadSelectorController.fail(res, error);
+      return ReadSelectorController.fail(res, 'Unknown error occured');
     }
   }
 }

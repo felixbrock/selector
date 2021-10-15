@@ -22,7 +22,7 @@ export interface UpdateSelectorAuthDto {
   organizationId: string;
 }
 
-export type UpdateSelectorResponseDto = Result<SelectorDto | null>;
+export type UpdateSelectorResponseDto = Result<SelectorDto>;
 
 export class UpdateSelector
   implements
@@ -72,18 +72,13 @@ export class UpdateSelector
         auth.organizationId
       );
 
-      const updateResult = await this.#selectorRepository.updateOne(
-        request.id,
-        updateDto
-      );
+      await this.#selectorRepository.updateOne(request.id, updateDto);
 
-      if (updateResult.error) throw new Error(updateResult.error);
-
-      return Result.ok<SelectorDto>(readSelectorResult.value);
-    } catch (error: any) {
-      return Result.fail<SelectorDto>(
-        typeof error === 'string' ? error : error.message
-      );
+      return Result.ok(readSelectorResult.value);
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Result.fail(error);
+      if (error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 

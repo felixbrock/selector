@@ -13,7 +13,7 @@ export interface PostWarningAuthDto {
   jwt: string;
 }
 
-export type PostWarningResponseDto = Result<WarningDto | null>;
+export type PostWarningResponseDto = Result<WarningDto>;
 
 export class PostWarning
   implements IUseCase<PostWarningRequestDto, PostWarningResponseDto, PostWarningAuthDto>
@@ -38,11 +38,11 @@ export class PostWarning
       if (!warningDto)
         throw new Error(`Creation of warning for ${request.systemId} failed`);
 
-      return Result.ok<WarningDto>(warningDto);
-    } catch (error: any) {
-      return Result.fail<WarningDto>(
-        typeof error === 'string' ? error : error.message
-      );
+      return Result.ok(warningDto);
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 }

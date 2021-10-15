@@ -15,8 +15,8 @@ export class Alert {
     this.#createdOn = properties.createdOn || Date.now();
   }
 
-  public static create(properties: AlertProperties): Result<Alert | null> {
+  public static create(properties: AlertProperties): Result<Alert> {
     const alert = new Alert(properties);
-    return Result.ok<Alert>(alert);
+    return Result.ok(alert);
   }
 }

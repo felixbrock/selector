@@ -30,6 +30,23 @@ interface SelectorPersistence {
   modifiedOn: number;
 }
 
+interface AlertsQueryFilter {
+  createdOn?: { [key: string]: number };
+}
+
+interface SelectorQueryFilter {
+  content?: string;
+  organizationId?: string;
+  systemId?: string;
+  modifiedOn?: { [key: string]: number };
+  alerts?: AlertsQueryFilter;
+}
+
+interface SelectorUpdateFilter {
+  $set: { [key: string]: any };
+  $push: { [key: string]: any };
+}
+
 const collectionName = 'selectors';
 
 // TODO - Should Result object should be returned or not?
@@ -37,40 +54,53 @@ const collectionName = 'selectors';
 export default class SelectorRepositoryImpl implements ISelectorRepository {
   public findOne = async (id: string): Promise<Selector | null> => {
     const client = createClient();
-    const db = await connect(client);
-    const result: any = await db
-      .collection(collectionName)
-      .findOne({ _id: new ObjectId(sanitize(id)) });
+    try {
+      const db = await connect(client);
+      const result: any = await db
+        .collection(collectionName)
+        .findOne({ _id: new ObjectId(sanitize(id)) });
 
-    close(client);
+      close(client);
 
-    if (!result) return null;
+      if (!result) return null;
 
-    return this.#toEntity(this.#buildProperties(result));
+      return this.#toEntity(this.#buildProperties(result));
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
+    }
   };
 
   public findBy = async (
     selectorQueryDto: SelectorQueryDto
   ): Promise<Selector[]> => {
-    if (!Object.keys(selectorQueryDto).length) return this.all();
+    try {
+      if (!Object.keys(selectorQueryDto).length) return await this.all();
 
-    const client = createClient();
-    const db = await connect(client);
-    const result: FindCursor = await db
-      .collection(collectionName)
-      .find(this.#buildFilter(sanitize(selectorQueryDto)));
-    const results = await result.toArray();
+      const client = createClient();
 
-    close(client);
+      const db = await connect(client);
+      const result: FindCursor = await db
+        .collection(collectionName)
+        .find(this.#buildFilter(sanitize(selectorQueryDto)));
+      const results = await result.toArray();
 
-    if (!results || !results.length) return [];
+      close(client);
 
-    return results.map((element: any) =>
-      this.#toEntity(this.#buildProperties(element))
-    );
+      if (!results || !results.length) return [];
+
+      return results.map((element: any) =>
+        this.#toEntity(this.#buildProperties(element))
+      );
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
+    }
   };
 
-  #buildFilter = (selectorQueryDto: SelectorQueryDto): any => {
+  #buildFilter = (selectorQueryDto: SelectorQueryDto): SelectorQueryFilter => {
     const filter: { [key: string]: any } = {};
 
     if (selectorQueryDto.content) filter.content = selectorQueryDto.content;
@@ -102,22 +132,28 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
   public all = async (): Promise<Selector[]> => {
     const client = createClient();
-    const db = await connect(client);
-    const result: FindCursor = await db.collection(collectionName).find();
-    const results = await result.toArray();
+    try {
+      const db = await connect(client);
+      const result: FindCursor = await db.collection(collectionName).find();
+      const results = await result.toArray();
 
-    close(client);
+      close(client);
 
-    if (!results || !results.length) return [];
+      if (!results || !results.length) return [];
 
-    return results.map((element: any) =>
-      this.#toEntity(this.#buildProperties(element))
-    );
+      return results.map((element: any) =>
+        this.#toEntity(this.#buildProperties(element))
+      );
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
+    }
   };
 
-  public insertOne = async (selector: Selector): Promise<Result<null>> => {
+  public insertOne = async (selector: Selector): Promise<string> => {
+    const client = createClient();
     try {
-      const client = createClient();
       const db = await connect(client);
       const result: InsertOneResult<Document> = await db
         .collection(collectionName)
@@ -128,20 +164,20 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
       close(client);
 
-      return Result.ok<null>();
-    } catch (error: any) {
-      return Result.fail<null>(
-        typeof error === 'string' ? error : error.message
-      );
+      return result.insertedId.toHexString();
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
     }
   };
 
   public updateOne = async (
     id: string,
     updateDto: SelectorUpdateDto
-  ): Promise<Result<null>> => {
+  ): Promise<string> => {
+    const client = createClient();
     try {
-      const client = createClient();
       const db = await connect(client);
 
       const result: Document | UpdateResult = await db
@@ -156,18 +192,17 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
       close(client);
 
-      return Result.ok<null>();
-    } catch (error: any) {
-      return Result.fail<null>(
-        typeof error === 'string' ? error : error.message
-      );
+      return result.upsertedId;
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
     }
   };
 
   #buildUpdateFilter = (
     selectorUpdateDto: SelectorUpdateDto
-  ): { [key: string]: any } => {
-    const filter: { [key: string]: any } = {};
+  ): SelectorUpdateFilter => {
     const setFilter: { [key: string]: any } = {};
     const pushFilter: { [key: string]: any } = {};
 
@@ -183,15 +218,12 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     if (selectorUpdateDto.alert)
       pushFilter.alerts = this.#alertToPersistence(selectorUpdateDto.alert);
 
-    if (Object.keys(setFilter).length) filter.$set = setFilter;
-    if (Object.keys(pushFilter).length) filter.$push = pushFilter;
-
-    return filter;
+    return { $set: setFilter, $push: pushFilter };
   };
 
-  public deleteOne = async (id: string): Promise<Result<null>> => {
+  public deleteOne = async (id: string): Promise<string> => {
+    const client = createClient();
     try {
-      const client = createClient();
       const db = await connect(client);
       const result: DeleteResult = await db
         .collection(collectionName)
@@ -202,11 +234,11 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
 
       close(client);
 
-      return Result.ok<null>();
-    } catch (error: any) {
-      return Result.fail<null>(
-        typeof error === 'string' ? error : error.message
-      );
+      return result.deletedCount.toString();
+    } catch (error: unknown) {
+      if (typeof error === 'string') return Promise.reject(error);
+      if (error instanceof Error) return Promise.reject(error.message);
+      return Promise.reject(new Error('Unknown error occured'));
     }
   };
 

@@ -16,7 +16,7 @@ export interface ReadSelectorsAuthDto {
   organizationId: string;
 }
 
-export type ReadSelectorsResponseDto = Result<SelectorDto[] | null>;
+export type ReadSelectorsResponseDto = Result<SelectorDto[]>;
 
 export class ReadSelectors
   implements
@@ -37,19 +37,19 @@ export class ReadSelectors
     auth: ReadSelectorsAuthDto
   ): Promise<ReadSelectorsResponseDto> {
     try {
-      const selectors: Selector[] | null =
+      const selectors: Selector[] =
         await this.#selectorRepository.findBy(
           this.#buildSelectorQueryDto(request, auth.organizationId)
         );
       if (!selectors) throw new Error(`Queried selectors do not exist`);
 
-      return Result.ok<SelectorDto[]>(
+      return Result.ok(
         selectors.map((selector) => buildSelectorDto(selector))
       );
-    } catch (error: any) {
-      return Result.fail<null>(
-        typeof error === 'string' ? error : error.message
-      );
+    } catch (error: unknown) {
+      if(typeof error === 'string') return Result.fail(error);
+      if(error instanceof Error) return Result.fail(error.message);
+      return Result.fail('Unknown error occured');
     }
   }
 
