@@ -43,10 +43,9 @@ export class CreateAlert
     request: CreateAlertRequestDto,
     auth: CreateAlertAuthDto
   ): Promise<CreateAlertResponseDto> {
-    const alert: Result<Alert> = this.#createAlert();
-    if (!alert.value) return alert;
-
     try {
+      const alert: Alert = this.#createAlert();
+
       const readSelectorResult = await this.#readSelector.execute(
         { id: request.selectorId },
         { organizationId: auth.organizationId }
@@ -63,7 +62,7 @@ export class CreateAlert
       if (readSelectorResult.value.organizationId !== auth.organizationId)
         throw new Error('Not authorized to perform action');
 
-      const alertDto = buildAlertDto(alert.value);
+      const alertDto = buildAlertDto(alert);
 
       const updateSelectorResult: Result<SelectorDto> =
         await this.#updateSelector.execute(
@@ -102,5 +101,5 @@ export class CreateAlert
     }
   }
 
-  #createAlert = (): Result<Alert> => Alert.create({});
+  #createAlert = (): Alert => Alert.create({});
 }

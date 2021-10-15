@@ -1,4 +1,3 @@
-import Result from './transient-types/result';
 
 export interface AlertProperties {
   createdOn?: number;
@@ -15,8 +14,6 @@ export class Alert {
     this.#createdOn = properties.createdOn || Date.now();
   }
 
-  public static create(properties: AlertProperties): Result<Alert> {
-    const alert = new Alert(properties);
-    return Result.ok(alert);
-  }
+  public static create = (properties: AlertProperties): Alert =>
+    new Alert(properties);
 }

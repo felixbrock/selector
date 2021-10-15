@@ -25,9 +25,7 @@ export default class ReadSelectorsController extends BaseController {
     this.#getAccounts = getAccounts;
   }
 
-  #buildRequestDto = (
-    httpRequest: Request
-  ): Result<ReadSelectorsRequestDto> => {
+  #buildRequestDto = (httpRequest: Request): ReadSelectorsRequestDto => {
     const {
       systemId,
       content,
@@ -52,34 +50,28 @@ export default class ReadSelectorsController extends BaseController {
         'Request query parameter are supposed to be in URL encoded string format'
       );
 
-    try {
-      return Result.ok({
-        content: typeof content === 'string' ? content : undefined,
-        systemId: typeof systemId === 'string' ? systemId : undefined,
-        alert: {
-          createdOnStart:
-            typeof alertCreatedOnStart === 'string'
-              ? this.#buildDate(alertCreatedOnStart)
-              : undefined,
-          createdOnEnd:
-            typeof alertCreatedOnEnd === 'string'
-              ? this.#buildDate(alertCreatedOnEnd)
-              : undefined,
-        },
-        modifiedOnStart:
-          typeof modifiedOnStart === 'string'
-            ? this.#buildDate(modifiedOnStart)
+    return {
+      content: typeof content === 'string' ? content : undefined,
+      systemId: typeof systemId === 'string' ? systemId : undefined,
+      alert: {
+        createdOnStart:
+          typeof alertCreatedOnStart === 'string'
+            ? this.#buildDate(alertCreatedOnStart)
             : undefined,
-        modifiedOnEnd:
-          typeof modifiedOnEnd === 'string'
-            ? this.#buildDate(modifiedOnEnd)
+        createdOnEnd:
+          typeof alertCreatedOnEnd === 'string'
+            ? this.#buildDate(alertCreatedOnEnd)
             : undefined,
-      });
-    } catch (error: unknown) {
-      if (typeof error === 'string') return Result.fail(error);
-      if (error instanceof Error) return Result.fail(error.message);
-      return Result.fail('Unknown error occured');
-    }
+      },
+      modifiedOnStart:
+        typeof modifiedOnStart === 'string'
+          ? this.#buildDate(modifiedOnStart)
+          : undefined,
+      modifiedOnEnd:
+        typeof modifiedOnEnd === 'string'
+          ? this.#buildDate(modifiedOnEnd)
+          : undefined,
+    };
   };
 
   #queryParametersValid = (parameters: unknown[]): boolean => {
@@ -141,23 +133,15 @@ export default class ReadSelectorsController extends BaseController {
       if (!getUserAccountInfoResult.value)
         throw new Error('Authorization failed');
 
-      const buildDtoResult: Result<ReadSelectorsRequestDto> =
+      const buildDtoResult: ReadSelectorsRequestDto =
         this.#buildRequestDto(req);
-
-      if (buildDtoResult.error)
-        return ReadSelectorsController.badRequest(res, buildDtoResult.error);
-      if (!buildDtoResult.value)
-        return ReadSelectorsController.badRequest(
-          res,
-          'Invalid request query paramerters'
-        );
 
       const authDto: ReadSelectorsAuthDto = this.#buildAuthDto(
         getUserAccountInfoResult.value
       );
 
       const useCaseResult: ReadSelectorsResponseDto =
-        await this.#readSelectors.execute(buildDtoResult.value, authDto);
+        await this.#readSelectors.execute(buildDtoResult, authDto);
 
       if (useCaseResult.error) {
         return ReadSelectorsController.badRequest(res, useCaseResult.error);

@@ -28,17 +28,17 @@ export default class DeleteSelectorsController extends BaseController {
     this.#getAccounts = getAccounts;
   }
 
-  #buildRequestDto = (
-    httpRequest: Request
-  ): Result<DeleteSelectorsRequestDto> => {
+  #buildRequestDto = (httpRequest: Request): DeleteSelectorsRequestDto => {
     const { systemId } = httpRequest.query;
-    if (typeof systemId === 'string')
-      return Result.ok({
-        systemId,
-      });
-    return Result.fail(
-      'request query parameter systemId is supposed to be in string format'
-    );
+
+    if (typeof systemId !== 'string')
+      throw new Error(
+        'request query parameter systemId is supposed to be in string format'
+      );
+
+    return {
+      systemId,
+    };
   };
 
   #buildAuthDto = (
@@ -56,7 +56,7 @@ export default class DeleteSelectorsController extends BaseController {
       if (!authHeader)
         return DeleteSelectorsController.unauthorized(res, 'Unauthorized');
 
-      const jwt = authHeader.split(' ')[1];     
+      const jwt = authHeader.split(' ')[1];
 
       const getUserAccountInfoResult: Result<UserAccountInfo> =
         await DeleteSelectorsController.getUserAccountInfo(
@@ -72,16 +72,8 @@ export default class DeleteSelectorsController extends BaseController {
       if (!getUserAccountInfoResult.value)
         throw new Error('Authorization failed');
 
-      const buildDtoResult: Result<DeleteSelectorsRequestDto> =
+      const buildDtoResult: DeleteSelectorsRequestDto =
         this.#buildRequestDto(req);
-
-      if (buildDtoResult.error)
-        return DeleteSelectorsController.badRequest(res, buildDtoResult.error);
-      if (!buildDtoResult.value)
-        return DeleteSelectorsController.badRequest(
-          res,
-          'Invalid request query paramerters'
-        );
 
       const authDto: DeleteSelectorsAuthDto = this.#buildAuthDto(
         getUserAccountInfoResult.value,
@@ -89,7 +81,7 @@ export default class DeleteSelectorsController extends BaseController {
       );
 
       const useCaseResult: DeleteSelectorsResponseDto =
-        await this.#deleteSelectors.execute(buildDtoResult.value, authDto);
+        await this.#deleteSelectors.execute(buildDtoResult, authDto);
 
       if (useCaseResult.error) {
         return DeleteSelectorsController.badRequest(res, useCaseResult.error);

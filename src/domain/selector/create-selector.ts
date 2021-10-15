@@ -42,17 +42,16 @@ export class CreateSelector
     request: CreateSelectorRequestDto,
     auth: CreateSelectorAuthDto
   ): Promise<CreateSelectorResponseDto> {
-    const selector: Result<Selector> = this.#createSelector(
-      request,
-      auth.organizationId
-    );
-    if (!selector.value) return selector;
-
     try {
+      const selector: Selector = this.#createSelector(
+        request,
+        auth.organizationId
+      );
+
       const readSelectorResult: ReadSelectorsResponseDto =
         await this.#readSelectors.execute(
           {
-            content: selector.value.content,
+            content: selector.content,
           },
           { organizationId: auth.organizationId }
         );
@@ -66,12 +65,12 @@ export class CreateSelector
           `Selector ${readSelectorResult.value[0].content} is already registered under ${readSelectorResult.value[0].id}`
         );
 
-      await this.#selectorRepository.insertOne(selector.value);
+      await this.#selectorRepository.insertOne(selector);
 
-      return Result.ok(buildSelectorDto(selector.value));
+      return Result.ok(buildSelectorDto(selector));
     } catch (error: unknown) {
-      if(typeof error === 'string') return Result.fail(error);
-      if(error instanceof Error) return Result.fail(error.message);
+      if (typeof error === 'string') return Result.fail(error);
+      if (error instanceof Error) return Result.fail(error.message);
       return Result.fail('Unknown error occured');
     }
   }
@@ -79,7 +78,7 @@ export class CreateSelector
   #createSelector = (
     request: CreateSelectorRequestDto,
     organizationId: string
-  ): Result<Selector> => {
+  ): Selector => {
     const selectorProperties: SelectorProperties = {
       id: new ObjectId().toHexString(),
       content: request.content,

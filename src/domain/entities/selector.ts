@@ -1,5 +1,4 @@
 import { Alert } from '../value-types/alert';
-import Result from '../value-types/transient-types/result';
 
 export interface SelectorProperties {
   id: string;
@@ -42,8 +41,7 @@ export class Selector {
   }
 
   public set organizationId(organizationId: string) {
-    if (!organizationId)
-      throw new Error('Selector must have organizationId');
+    if (!organizationId) throw new Error('Selector must have organizationId');
 
     this.#organizationId = organizationId;
   }
@@ -73,16 +71,14 @@ export class Selector {
     this.#modifiedOn = properties.modifiedOn || Date.now();
   }
 
-  public static create(properties: SelectorProperties): Result<Selector> {
-    if (!properties.content)
-      return Result.fail('Selector must have content');
+  public static create(properties: SelectorProperties): Selector {
+    if (!properties.content) throw new Error('Selector must have content');
     if (!properties.organizationId)
-      return Result.fail('Selector must have organizationId');
-    if (!properties.systemId)
-      return Result.fail('Selector must have system id');
-    if (!properties.id) return Result.fail('Selector must have id');
+      throw new Error('Selector must have organizationId');
+    if (!properties.systemId) throw new Error('Selector must have system id');
+    if (!properties.id) throw new Error('Selector must have id');
 
     const selector = new Selector(properties);
-    return Result.ok(selector);
+    return selector;
   }
 }

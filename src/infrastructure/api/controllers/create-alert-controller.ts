@@ -25,17 +25,15 @@ export default class CreateAlertController extends BaseController {
     this.#getAccounts = getAccounts;
   }
 
-  #buildRequestDto = (httpRequest: Request): Result<CreateAlertRequestDto> => {
+  #buildRequestDto = (httpRequest: Request): CreateAlertRequestDto => {
     const { selectorId } = httpRequest.params;
 
     if (!selectorId)
-      return Result.fail(
-        'Cannot find request parameter selectorId'
-      );
+      throw new Error('Cannot find request parameter selectorId');
 
-    return Result.ok({
+    return {
       selectorId,
-    });
+    };
   };
 
   #buildAuthDto = (
@@ -53,13 +51,10 @@ export default class CreateAlertController extends BaseController {
       if (!authHeader)
         return CreateAlertController.unauthorized(res, 'Unauthorized');
 
-      const jwt = authHeader.split(' ')[1];     
+      const jwt = authHeader.split(' ')[1];
 
       const getUserAccountInfoResult: Result<UserAccountInfo> =
-        await CreateAlertController.getUserAccountInfo(
-          jwt,
-          this.#getAccounts
-        );
+        await CreateAlertController.getUserAccountInfo(jwt, this.#getAccounts);
 
       if (!getUserAccountInfoResult.success)
         return CreateAlertController.unauthorized(
@@ -69,16 +64,7 @@ export default class CreateAlertController extends BaseController {
       if (!getUserAccountInfoResult.value)
         throw new Error('Authorization failed');
 
-      const buildDtoResult: Result<CreateAlertRequestDto> =
-        this.#buildRequestDto(req);
-
-      if (buildDtoResult.error)
-        return CreateAlertController.badRequest(res, buildDtoResult.error);
-      if (!buildDtoResult.value)
-        return CreateAlertController.badRequest(
-          res,
-          'Invalid request paramerters'
-        );
+      const buildDtoResult: CreateAlertRequestDto = this.#buildRequestDto(req);
 
       const authDto: CreateAlertAuthDto = this.#buildAuthDto(
         getUserAccountInfoResult.value,
@@ -86,7 +72,7 @@ export default class CreateAlertController extends BaseController {
       );
 
       const useCaseResult: CreateAlertResponseDto =
-        await this.#createAlert.execute(buildDtoResult.value, authDto);
+        await this.#createAlert.execute(buildDtoResult, authDto);
 
       if (useCaseResult.error) {
         return CreateAlertController.badRequest(res, useCaseResult.error);
@@ -100,8 +86,7 @@ export default class CreateAlertController extends BaseController {
     } catch (error: unknown) {
       if (typeof error === 'string')
         return CreateAlertController.fail(res, error);
-      if (error instanceof Error)
-        return CreateAlertController.fail(res, error);
+      if (error instanceof Error) return CreateAlertController.fail(res, error);
       return CreateAlertController.fail(res, 'Unknown error occured');
     }
   }

@@ -35,7 +35,6 @@ export class DeleteSelectors
     auth: DeleteSelectorsAuthDto
   ): Promise<DeleteSelectorsResponseDto> {
     try {
-      // read Selectors
       const readSelectorsResult: Result<SelectorDto[]> =
         await this.#readSelectors.execute({ systemId: request.systemId }, {organizationId: auth.organizationId});
 

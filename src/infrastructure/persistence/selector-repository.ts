@@ -14,7 +14,6 @@ import {
   SelectorUpdateDto,
 } from '../../domain/selector/i-selector-repository';
 import { Alert } from '../../domain/value-types/alert';
-import Result from '../../domain/value-types/transient-types/result';
 import { connect, close, createClient } from './db/mongo-db';
 
 interface AlertPersistence {
@@ -48,8 +47,6 @@ interface SelectorUpdateFilter {
 }
 
 const collectionName = 'selectors';
-
-// TODO - Should Result object should be returned or not?
 
 export default class SelectorRepositoryImpl implements ISelectorRepository {
   public findOne = async (id: string): Promise<Selector | null> => {
@@ -242,16 +239,8 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     }
   };
 
-  #toEntity = (selectorProperties: SelectorProperties): Selector => {
-    const createSelectorResult: Result<Selector> =
-      Selector.create(selectorProperties);
-
-    if (createSelectorResult.error) throw new Error(createSelectorResult.error);
-    if (!createSelectorResult.value)
-      throw new Error('Selector creation failed');
-
-    return createSelectorResult.value;
-  };
+  #toEntity = (selectorProperties: SelectorProperties): Selector =>
+    Selector.create(selectorProperties);
 
   #buildProperties = (selector: SelectorPersistence): SelectorProperties => ({
     // eslint-disable-next-line no-underscore-dangle
@@ -260,11 +249,9 @@ export default class SelectorRepositoryImpl implements ISelectorRepository {
     organizationId: selector.organizationId,
     systemId: selector.systemId,
     modifiedOn: selector.modifiedOn,
-    alerts: selector.alerts.map((alert) => {
-      const alertResult = Alert.create({ createdOn: alert.createdOn });
-      if (alertResult.value) return alertResult.value;
-      throw new Error(alertResult.error || `Creation of selector alert failed`);
-    }),
+    alerts: selector.alerts.map((alert) =>
+      Alert.create({ createdOn: alert.createdOn })
+    ),
   });
 
   #toPersistence = (selector: Selector): Document => ({

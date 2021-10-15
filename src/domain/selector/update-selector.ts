@@ -109,15 +109,7 @@ export class UpdateSelector
       updateDto.content = request.content;
     }
 
-    if (request.alert) {
-      const createResult = Alert.create({});
-      // TODO No uniform usage of Result.value Result.error and result.success. Fix.
-      if (createResult.error) throw new Error(createResult.error);
-      if (!createResult.value)
-        throw new Error(`Creation of selector alert ${request.alert} failed`);
-
-      updateDto.alert = createResult.value;
-    }
+    if (request.alert) updateDto.alert = Alert.create({});
 
     updateDto.modifiedOn = Date.now();
 
