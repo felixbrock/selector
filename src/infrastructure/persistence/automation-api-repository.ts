@@ -30,7 +30,7 @@ export default class AutomationApiRepositoryImpl
       );
       const jsonResponse = response.data;
       if (response.status === 200) return jsonResponse.response.data.message;
-      throw new Error(jsonResponse.response.data.message);
+      throw new Error(jsonResponse.message);
     } catch (error: unknown) {
       if (typeof error === 'string') return Promise.reject(error);
       if (error instanceof Error) return Promise.reject(error.message);
